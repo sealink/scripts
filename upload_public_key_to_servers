@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
-require 'yaml'
+require './servers'
+servers = load_servers
 
 def command(string)
 	puts ">> #{string}"
@@ -20,30 +21,6 @@ end
 # ssh looks in a file located at /home/{user}/.ssh/authorized_keys2
 
 rsa = File.read(public_key_file)
-
-class Server
-	attr_accessor :host, :port, :user
-	def initialize(host, port, user)
-    @host = host
-		@port = port unless port == ''
-		@user = user
-	end
-
-	def run(command_string)
-	  command("ssh -l #{user} #{port_argument} #{host} \"#{command_string}\"")
-	end
-
-	def port_argument
-		@port_argument ||= (@port ? "-p #{@port}" : "")
-	end
-end
-
-server_hashes = YAML::load(File.read('servers.yml'))
-servers = server_hashes.map do |h|
-	user_host, port = h.split(':')
-	user, host = user_host.split('@')
-	Server.new(host, port, user)
-end
 
 authorized_keys_file = "~/.ssh/authorized_keys2"
 servers.each do |server|
