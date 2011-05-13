@@ -1,0 +1,56 @@
+#!/usr/bin/env ruby
+
+require 'yaml'
+
+def command(string)
+	puts ">> #{string}"
+  `#{string}`
+end
+
+public_key_file = "#{ENV['HOME']}/.ssh/id_rsa.pub"
+
+# will generate a 2048 bit encrypted public-private key pair,
+# by default it will be stored in /home/{user}/.ssh/id_pub & id_rsa respectively.
+if !File.exists?(public_key_file)
+  command("ssh-keygen -t rsa")
+end
+
+# we have to add our public key to server, so that server can question the user
+# for private key, matching it with public key for authentication. By default,
+# ssh looks in a file located at /home/{user}/.ssh/authorized_keys2
+
+rsa = File.read(public_key_file)
+
+class Server
+	attr_accessor :host, :port, :user
+	def initialize(host, port, user)
+    @host = host
+		@port = port unless port == ''
+		@user = user
+	end
+
+	def run(command_string)
+	  command("ssh -l #{user} #{port_argument} #{host} \"#{command_string}\"")
+	end
+
+	def port_argument
+		@port_argument ||= (@port ? "-p #{@port}" : "")
+	end
+end
+
+server_hashes = YAML::load(File.read('servers.yml'))
+servers = server_hashes.map do |h|
+	user_host, port = h.split(':')
+	user, host = user_host.split('@')
+	Server.new(host, port, user)
+end
+
+authorized_keys_file = "~/.ssh/authorized_keys2"
+servers.each do |server|
+  puts "uploading key to #{server.host}"
+  found = server.run("grep \\\"#{rsa}\\\" #{authorized_keys_file} | wc -l")
+	puts "found = #{found}"
+	key_uploaded = found.to_i > 0
+  server.run("echo \\\"#{rsa}\\\" >> #{authorized_keys_file}") unless key_uploaded
+end
+
