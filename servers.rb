@@ -18,7 +18,7 @@ class Server
 	end
 
 	def run(command_string)
-	  command(ssh_base + "\"#{command_string}\"")
+	  command(ssh_base + " \"#{command_string}\"")
 	end
 
 	def ssh_base

@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+command = ENV['COMMAND']
+if command.nil?
+  puts "COMMAND variable must be specified, e.g.:"
+	puts "COMMAND=ls ./run_script_on_servers"
+	exit
+else
+	raise "hi"
+end
+
+require './servers'
+servers = load_servers
+
+def command(string)
+	puts ">> #{string}"
+  res = `#{string}`
+	puts res
+end
+
+
+servers.each do |server|
+  server.run(command)
+end
+
