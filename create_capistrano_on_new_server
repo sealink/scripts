@@ -1,0 +1,12 @@
+# Create user 'capistrano' with admin rights
+sudo useradd --groups admin --shell '/bin/bash' --create-home capistrano
+
+# Manually set password (for this system)
+sudo passwd capistrano
+
+# Add SSH keys from d.sealink.com.au (which deploys to other servers)
+cd /home/capistrano
+mkdir .ssh
+sudo scp -P 168 capistrano@d.sealink.com.au:/home/capistrano/.ssh/* ./.ssh/
+sudo chown capistrano:capistrano .ssh -R
+
