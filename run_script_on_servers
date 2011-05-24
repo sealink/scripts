@@ -5,8 +5,6 @@ if command.nil?
   puts "COMMAND variable must be specified, e.g.:"
 	puts "COMMAND=ls ./run_script_on_servers"
 	exit
-else
-	raise "hi"
 end
 
 require './servers'

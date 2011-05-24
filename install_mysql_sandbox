@@ -1,0 +1,17 @@
+#!/bin/bash
+
+VERSION="MySQL-Sandbox-3.0.17"
+if [ ! -d $VERSION ]; then
+	echo "Downloading and extracting..."
+	wget "http://launchpad.net/mysql-sandbox/mysql-sandbox-3/mysql-sandbox-3/+download/$VERSION.tar.gz"
+	tar -xzf "$VERSION.tar.gz"
+fi
+
+echo "Compiling"
+cd MySQL-Sandbox-3.0.17
+perl Makefile.PL 
+make
+make test
+make install
+
+echo "Done"

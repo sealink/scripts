@@ -1,0 +1,52 @@
+#!/bin/bash
+
+WHICH=`which which`
+ECHO=`#{WHICH} echo`
+
+# First argument is the version, second argument is minimum
+minimum_version() {
+  HIGHEST=`echo -e "$1\n$2" | sort -t '.' -g | tail -n 1`
+	if [ $HIGHEST = $1 ]; then
+	  return 1
+	else
+		return 0
+	fi
+}
+
+ubuntu_minimum_version() {
+	source /etc/lsb-release 
+	if [ ${DISTRIB_NAME} = 'Ubuntu' ]; then
+		minimum_version $DISTRIB_RELEASE '10.10'
+		return $?
+	else
+		return 1
+	fi
+}
+
+REDIS_VERSION=`which redis-server && redis-server -v | sed -s 's/[^0-9\.]//g'`
+echo $REDIS_VERSION
+if [ `which redis-server` ]; then
+	if [ test `minimum_version $REDIS_VERSION "2"` ]; then
+		echo "Redis version ${REDIS_VERSION} already installed"
+		exit 0;
+	fi
+
+	install_redis_227();
+else
+	echo "Need to install/upgrade redis"
+	if [ ubuntu_minimum_version "10.10" ]; then
+		${ECHO} "Installing redis from ubuntu repository"
+	  apt-get install redis-server
+	else
+		${ECHO} "Installing redis from source"
+	 	wget http://redis.googlecode.com/files/redis-2.2.7.tar.gz
+	 	tar xzf redis-2.2.7.tar.gz
+	 	cd redis-2.2.7
+	 	make
+	 	make install
+		cp init.d.redis /etc/init.d/redis
+		cp redis.conf /etc/redis.conf
+	fi
+fi
+
+

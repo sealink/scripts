@@ -37,4 +37,8 @@ def load_servers
 		user, host = user_host.split('@')
 		Server.new(host, port, user)
 	end
+
+	def scp_port_argument
+		@port_argument ||= (@port ? "-P #{@port}" : "")
+	end
 end
