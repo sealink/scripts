@@ -28,6 +28,10 @@ class Server
 	def port_argument
 		@port_argument ||= (@port ? "-p #{@port}" : "")
 	end
+
+	def scp_port_argument
+		@port_argument ||= (@port ? "-P #{@port}" : "")
+	end
 end
 
 def load_servers
@@ -36,9 +40,5 @@ def load_servers
 		user_host, port = h.split(':')
 		user, host = user_host.split('@')
 		Server.new(host, port, user)
-	end
-
-	def scp_port_argument
-		@port_argument ||= (@port ? "-P #{@port}" : "")
 	end
 end
