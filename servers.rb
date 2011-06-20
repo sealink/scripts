@@ -20,6 +20,10 @@ class Server
 	def run(command_string)
 	  command(ssh_base + " \"#{command_string}\"")
 	end
+	
+	def run_as_sudo(command_string, password)
+		command("sshpass -p#{password} #{ssh_base} -t \"sudo #{command_string}\"")
+	end
 
 	def ssh_base
 		"ssh -l #{user} #{port_argument} #{host}"

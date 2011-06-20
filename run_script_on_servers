@@ -18,6 +18,6 @@ end
 
 
 servers.each do |server|
-  server.run(command)
+  ENV['SUDO'] ? server.run_as_sudo(command, ENV['SUDO']) : server.run(command)
 end
 
