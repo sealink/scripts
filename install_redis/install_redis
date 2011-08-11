@@ -30,8 +30,6 @@ if [ `which redis-server` ]; then
 		echo "Redis version ${REDIS_VERSION} already installed"
 		exit 0;
 	fi
-
-	install_redis_227();
 else
 	echo "Need to install/upgrade redis"
 	if [ ubuntu_minimum_version "10.10" ]; then
