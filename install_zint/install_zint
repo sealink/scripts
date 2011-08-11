@@ -1,0 +1,9 @@
+#!/bin/bash
+
+zint_ver=zint-2.3.0
+wget http://sourceforge.net/projects/zint/files/zint/2.3/$zint_ver.src.tar.gz
+tar -xvzf ./$zint_ver.src.tar.gz
+cd $zint_ver
+make
+make install
+ldconfig
