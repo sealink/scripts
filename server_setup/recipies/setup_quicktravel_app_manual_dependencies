@@ -1,0 +1,5 @@
+if [ -d scripts ]; then cd scripts && git pull && echo "up to date"; else git clone https://github.com/tlthq/scripts.git && echo "setup"; fi
+if `which redis-server --version`; then echo "redis installed"; else cd ~/scripts/install_redis && chmod a+x install_redis && sudo ./install_redis; fi
+sudo apt-get install libpng-dev libz-dev
+if `which zint`; then echo "zint installed"; else cd ~/scripts/install_zint && chmod a+x install_zint && sudo ./install_zint; fi
+

@@ -1,0 +1,7 @@
+# Create user 'capistrano' with admin rights
+sudo useradd --groups admin --shell '/bin/bash' --create-home <%= @user %>
+
+# Manually set password (for this system)
+#sudo passwd capistrano
+echo "<%= @user %> ALL=(ALL) NOPASSWD:ALL" | sudo tee --append /etc/sudoers
+

@@ -1,0 +1,5 @@
+<% escaped_mirror = @source.gsub('/', '\/') %>
+<% mirror_regex = "\"s/au.archive.ubuntu.com/#{escaped_mirror}/g\"" %>
+sudo mv /etc/apt/sources.list /etc/apt/sources.list.bak
+sed <%= mirror_regex %> /etc/apt/sources.list.bak | sudo tee /etc/apt/sources.list
+

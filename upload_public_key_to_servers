@@ -1,12 +1,6 @@
 #!/usr/bin/env ruby
 
 require './servers'
-servers = load_servers
-
-def command(string)
-	puts ">> #{string}"
-  `#{string}`
-end
 
 public_key_file = "#{ENV['HOME']}/.ssh/id_rsa.pub"
 
@@ -23,11 +17,11 @@ end
 rsa = File.read(public_key_file)
 
 authorized_keys_file = "~/.ssh/authorized_keys2"
-servers.each do |server|
+Server.load.each do |server|
   puts "uploading key to #{server.host}"
-  found = server.run("grep \\\"#{rsa}\\\" #{authorized_keys_file} | wc -l")
+  found = server.ssh("mkdir ~/.ssh && touch ~/.ssh/authorized_keys2 && grep \\\"#{rsa}\\\" #{authorized_keys_file} | wc -l")
 	puts "found = #{found}"
 	key_uploaded = found.to_i > 0
-  server.run("echo \\\"#{rsa}\\\" >> #{authorized_keys_file}") unless key_uploaded
+  server.ssh("echo \\\"#{rsa}\\\" >> #{authorized_keys_file}") unless key_uploaded
 end
 

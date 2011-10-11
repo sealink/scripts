@@ -1,0 +1,6 @@
+# Add SSH keys from d.sealink.com.au (which deploys to other servers)
+sudo mkdir <%= @base %>
+sudo touch <%= @base %>/authorized_keys2
+cat authorized_keys.defaults | sudo tee --append <%= @base %>/authorized_keys2
+sudo chown -R capistrano:capistrano <%= @base %>
+

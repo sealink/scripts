@@ -1,0 +1,6 @@
+sudo apt-get install --yes python-software-properties
+sudo add-apt-repository ppa:nginx/stable
+sudo apt-get update 
+sudo apt-get install --yes nginx
+sudo cp /home/capistrano/nginx.sites.defaults.conf /etc/nginx/sites-defaults.conf
+sudo cp /home/capistrano/nginx.site.example.conf /etc/nginx/sites-available/
