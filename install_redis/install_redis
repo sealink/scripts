@@ -39,7 +39,8 @@ else
 		${ECHO} "Installing redis from source"
 		useradd redis
 		cp init.d.redis-server /etc/init.d/redis-server
-		cp redis.conf /etc/redis.conf
+		mkdir /etc/redis/
+		cp redis.conf /etc/redis/redis.conf
 		touch /var/run/redis.pid
 		chown redis.redis /var/run/redis.pid
 	 	wget http://redis.googlecode.com/files/redis-2.2.7.tar.gz
