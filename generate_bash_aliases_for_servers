@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require './servers'
-servers = load_servers
+servers = Server.load
 
 output = ENV['HOME']+"/.bash_aliases.servers"
 
