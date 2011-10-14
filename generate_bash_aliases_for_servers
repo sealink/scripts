@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require './servers'
+require './server'
 servers = Server.load
 
 output = ENV['HOME']+"/.bash_aliases.servers"
@@ -8,6 +8,8 @@ output = ENV['HOME']+"/.bash_aliases.servers"
 aliases = servers.map do |server|
 	"alias ssh-#{server.short_host}=\"#{server.ssh_base}\""
 end
+
+`cp --force ./bash_aliases/.bash_aliases.* ~/`
 
 File.open(output, 'w+') {|f| f.write(aliases.join("\n"))}
 
