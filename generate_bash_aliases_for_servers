@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
 require './server'
+unless ENV['USEEXISTING']
+  puts "Downloading servers.yml"
+  `wget --quiet --output-document=servers.yml https://secure.quicktravel.com.au/deployments/servers.yml`
+end
 servers = Server.load
 
 output = ENV['HOME']+"/.bash_aliases.servers"
@@ -9,7 +13,9 @@ aliases = servers.map do |server|
 	"alias ssh-#{server.short_host}=\"#{server.ssh_base}\""
 end
 
-`cp --force ./bash_aliases/.bash_aliases.* ~/`
-
+puts "Copying Server Aliases.."
 File.open(output, 'w+') {|f| f.write(aliases.join("\n"))}
+
+puts "Copying General Aliases.."
+`cp --force ./bash_aliases/.bash_aliases.* ~/`
 
