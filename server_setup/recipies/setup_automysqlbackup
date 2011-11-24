@@ -2,7 +2,7 @@ if [ -d automysqlbackup_plus ]; then
 	cd automysqlbackup_plus
 	git pull
 else
-	git clone https://github.com/tlthq/automysqlbackup_plus.git
+	git clone https://github.com/sealink/automysqlbackup_plus.git
 	cd automysqlbackup_plus
 fi
 
