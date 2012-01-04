@@ -1,0 +1,19 @@
+# Set up as disks & filesystems for new server
+
+# set devices as needed
+$homedevice=/dev/sdg
+$vardevice=/dev/sdh
+
+# make one partition on each device
+sudo fdisk /dev/...
+
+# make filesystems
+sudo mkfs.ext4 -L HOME $homedevice
+sudo mkfs.ext4 -L VAR $vardevice
+
+# add temporary mount pts to fstab file
+sudo echo $homedevice  /nhome  ext4  defaults    0 0
+sudo echo $vardevice   /nvar   ext4  defaults    0 0
+
+# Test mounts
+sudo mount -a

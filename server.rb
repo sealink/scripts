@@ -2,7 +2,7 @@ require 'yaml' # For server parsing
 require 'erubis' # For recipe
 
 class Server
-  attr_accessor :host, :short_host, :port, :user
+  attr_accessor :host, :short_host, :port, :user, :identity
   def initialize(host, port, user)
     @host = host
     @short_host = short_host
@@ -22,13 +22,7 @@ class Server
     command_string.split("\n").each do |command|
       next if command == '' || command[0] == '#'
       res = command(ssh_base + " '#{command}'")
-      if server.respond_to?(:provider)
-        res.each do |resu|
-          resu.status.zero? or raise Exception, "Error exit was not 0 during command #{command} - #{resu.stderr} -- #{resu.stdout}"
-        end
-      else
-        puts res
-      end
+      puts res
     end
   end
 
@@ -37,7 +31,7 @@ class Server
   end
 
   def ssh_base
-    "ssh -l #{user} #{port_argument} #{host}"
+    "ssh -i #{identity} -l #{user} #{port_argument} #{host}"
   end
 
   def recipe(name, hash = {})
@@ -55,6 +49,10 @@ class Server
   def scp(local, remote)
     remote ||= local.split('/').last
     command("scp #{scp_port_argument} #{local} #{user}@#{host}:#{remote}")
+  end
+
+  def download(url, destination)
+    ssh("wget --output-document #{destination} #{url}")
   end
 
   def port_argument
