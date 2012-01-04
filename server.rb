@@ -1,5 +1,5 @@
 require 'yaml' # For server parsing
-require 'erubis' # For recipie
+require 'erubis' # For recipe
 
 class Server
   attr_accessor :host, :short_host, :port, :user
@@ -40,8 +40,8 @@ class Server
     "ssh -l #{user} #{port_argument} #{host}"
   end
 
-  def recipie(name, hash = {})
-    text = File.read("recipies/#{name}")
+  def recipe(name, hash = {})
+    text = File.read("recipes/#{name}")
     context = Erubis::Context.new(hash)
     commands = Erubis::Eruby.new(text).evaluate(context)
     ssh(commands)
