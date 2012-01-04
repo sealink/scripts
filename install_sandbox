@@ -1,0 +1,12 @@
+#!/bin/bash
+
+EXPECTED_ARGS=2
+E_BADARGS=65
+
+if [ $# -ne $EXPECTED_ARGS ]
+then
+  echo "Usage: install_sandbox sandbox_name sandbox_port"
+  exit $E_BADARGS
+fi
+
+SANDBOX_BINARY=/db make_sandbox 5.5.15 --sandbox_directory $1 --sandbox_port $2 --upper_directory=/db
