@@ -31,7 +31,13 @@ class Server
   end
 
   def ssh_base
-    "ssh -i #{identity} -l #{user} #{port_argument} #{host}"
+    [
+      "ssh",
+      ("-i #{identity}" if identity),
+      ("-l #{user}" if user),
+      port_argument,
+      host
+    ].compact.join(" ")
   end
 
   def recipe(name, hash = {})
