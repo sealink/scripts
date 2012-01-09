@@ -1,4 +1,4 @@
-<% mirror_regex = "\'s$#{@old_source}$#{@source}$g\'" %>
+<% mirror_regex = "'\''s$old_source$source$'\''" %>
 sudo mv /etc/apt/sources.list /etc/apt/sources.list.bak
 sed <%= mirror_regex %> /etc/apt/sources.list.bak | sudo tee /etc/apt/sources.list
 
