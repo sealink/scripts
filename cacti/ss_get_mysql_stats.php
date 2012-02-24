@@ -235,6 +235,22 @@ function parse_cmdline( $args ) {
    return $result;
 }
 
+
+function exit_gracefully( $heartbeat ) {
+   $keys = ['bo', 'bp', 'bq', 'br'];
+   # Return the output.
+   $output = array();
+   foreach ($keys as $key) {
+      # If the value isn't defined, return -1 which is lower than (most graphs')
+      # minimum value of 0, so it'll be regarded as a missing value.
+      $val      = isset($status[$key]) ? $status[$key] : -1;
+      $output[] = "$key:-1";
+   }
+   $result = implode(' ', $output);
+  return $result;
+}
+
+
 # ============================================================================
 # This is the main function.  Some parameters are filled in from defaults at the
 # top of this file.
@@ -256,7 +272,8 @@ function ss_get_mysql_stats( $options ) {
    debug(array('connecting to', $host_str, $user, $pass));
    if ( !extension_loaded('mysql') ) {
       debug("The MySQL extension is not loaded");
-      die("The MySQL extension is not loaded");
+      //die("The MySQL extension is not loaded");
+      exit_gracefully();
    }
    if ( $mysql_ssl || (isset($options['mysql_ssl']) && $options['mysql_ssl']) ) {
       $conn = mysql_connect($host_str, $user, $pass, true, MYSQL_CLIENT_SSL);
@@ -265,7 +282,8 @@ function ss_get_mysql_stats( $options ) {
       $conn = mysql_connect($host_str, $user, $pass);
    }
    if ( !$conn ) {
-      die("MySQL: " . mysql_error());
+      //die("MySQL: " . mysql_error());
+      exit_gracefully();
    }
 
    $sanitized_host
