@@ -237,7 +237,7 @@ function parse_cmdline( $args ) {
 
 
 function exit_gracefully( $heartbeat ) {
-   $keys = ['bo', 'bp', 'bq', 'br'];
+   $keys = array('bo', 'bp', 'bq', 'br');
    # Return the output.
    $output = array();
    foreach ($keys as $key) {
