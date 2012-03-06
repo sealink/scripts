@@ -1,5 +1,7 @@
 #!/bin/bash
 
+mysql_version=$(mysql -V | awk '{print $5}' | sed -s 's/,//')
+
 EXPECTED_ARGS=2
 E_BADARGS=65
 
@@ -9,4 +11,4 @@ then
   exit $E_BADARGS
 fi
 
-SANDBOX_BINARY=/db make_sandbox 5.5.15 --sandbox_directory $1 --sandbox_port $2 --upper_directory=/db
+SANDBOX_BINARY=/db make_sandbox $mysql_version --sandbox_directory $1 --sandbox_port $2 --upper_directory=/db
