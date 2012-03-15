@@ -3,7 +3,7 @@
 require './server'
 unless ENV['USEEXISTING']
   puts "Downloading servers.yml"
-  `wget --quiet --output-document=servers.yml https://secure.quicktravel.com.au/deployments/servers.yml`
+  `wget --quiet --output-document=servers.yml https://deploy.quicktravel.com.au/servers.yml`
 end
 servers = Server.load
 
