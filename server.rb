@@ -15,7 +15,7 @@ class Server
   end
 
   def is_ip?
-    !@host.match(/^[0-9\.]*$/).nil?
+    !@host.match(/\A(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)(?:\.(?:25[0-5]|(?:2[0-4]|1\d|[1-9])?\d)){3}\z/).nil?
   end
 
   def ssh(command_string)
