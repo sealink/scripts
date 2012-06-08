@@ -8,20 +8,21 @@ end
 DB_PASSWORD       = 'test'
 FLAVOR = 'm1.large'
 #FLAVOR = 't1.micro'
-AMI    = 'ami-4af18918'
+AMI    = 'ami-a4ca8df6'
 ZONE   = 'ap-southeast-1b'
+KEY_NAME = 'sealink'
 
 class AmazonServer < Server
   def create
     @server = compute.servers.create(
       :image_id          => AMI,
       :flavor_id         => FLAVOR,
-      :subnet_id         => 'subnet-7300e71a', # Virtual Private Cloud ID
-      :key_name          => 'michael', # e.g. michael.pem
+      :subnet_id         => 'subnet-8f37e8e6', # Virtual Private Cloud ID
+      :key_name          => KEY_NAME
       :availability_zone => ZONE,
       :groups            => ['default'],
       :tags              => {'name' => 'FogTest'},
-      :private_key_path  => '/home/michael/michael.pem'
+      :private_key_path  => Dir.home << '/' << KEY_FILE_NAME << '.pem'
     )
     puts @server.inspect
     @server
@@ -38,7 +39,7 @@ class AmazonServer < Server
     small_disk = server.volumes.first
 
     snapshot_id = compute.create_snapshot(small_disk.id, "Snapshot for FOG TEST").body['snapshotId']
-    puts "crating snapsnot"
+    puts "creating snapsnot"
     compute.snapshots.get(snapshot_id).wait_for { print "."; ready? }
     big_disk = compute.volumes.create(:availability_zone => ZONE, :size => new_size, :snapshot_id => snapshot_id)
     puts "create volume from snap"
@@ -65,7 +66,7 @@ class VirtualBoxServer < Server
       :os => 'Ubuntu')
     medium = compute.mediums.create(
       :device_type => :hard_disk,
-      :location => '/home/michael/VirtualBox VMs/App Server/NewHardDisk1.vdi',
+      :location => Dir.home << '/VirtualBox VMs/App Server/NewHardDisk1.vdi',
       :read_only => false)
     storage_controller = server.storage_controllers.create(
       :bus => :sata, :name => 'sata')

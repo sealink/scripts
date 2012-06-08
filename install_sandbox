@@ -1,9 +1,15 @@
 #!/bin/bash
 
-mysql_version=$(mysql -V | awk '{print $5}' | sed -s 's/,//')
+mysql_version=5.5.17
+#mysql_version=$(mysql -V | awk '{print $5}' | sed -s 's/,//')
 
 EXPECTED_ARGS=2
 E_BADARGS=65
+
+if [ ! -d "/db" ]; then
+  echo "Unable to create sandbox - sandbox directory not found, expected /db"
+  exit 1
+fi
 
 if [ $# -ne $EXPECTED_ARGS ]
 then
