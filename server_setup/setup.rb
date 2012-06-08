@@ -1,19 +1,28 @@
 require 'rubygems'
 require '../server'
+require 'etc'
 
-server = Server.new(ENV['HOST'], 22, 'michael.noack')
+USER = 
+begin
+  IO.read(Dir[Dir.home + '/.thunderbird/**/prefs.js'].first).scan(/"NTDOMAIN\\\\.*"/).first.gsub(/(NTDOMAIN\\\\|")/, '')
+rescue
+  Etc.getlogin 
+end
+
+KEY_NAME = 'sealink'
+server = Server.new(ENV['HOST'], 22, USER)
 
 def ubu_do(server)
 	server.user = "ubuntu"
-	server.identity = '/home/michael/michael.pem'
+	server.identity = Dir.home << '/' << KEY_NAME << '.pem'
 end
 def cap_do(server)
 	server.user = "capistrano"
-	server.identity = '/home/michael/.ssh/id_rsa'
+	server.identity = Dir.home << '/.ssh/id_rsa'
 end
 
 #ubu_do(server)
-#server.recipe(:setup_apt_sources, :old_source => 'ap-southeast-1.ec2.archive.ubuntu.com/ubuntu/' , :source => 'mirror.nus.edu.sg/ubuntu/')
+#server.recipe(:setup_apt_sources, :old_source => 'ap-southeast-1.ec2.archive.ubuntu.com/ubuntu/' , :source => 'ap-southeast-1.ec2.archive.ubuntu.com.s3.amazonaws.com')
 
 #ubu_do(server)
 #server.recipe(:setup_apt_sources, :old_source => 'au.archive.ubuntu.com', :source => 'mirror.internode.on.net/pub/ubuntu')

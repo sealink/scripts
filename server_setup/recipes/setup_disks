@@ -1,21 +1,51 @@
 # Set up as disks & filesystems for new server
 
 # set devices as needed
-echo "
-$homedevice=/dev/sdg
-$vardevice=/dev/sdh
+
+$vardevice=/dev/xvdf
+$homedevice=/dev/xvdg
 
 # make one partition on each device
-sudo fdisk /dev/...
+sudo sfdisk $homedevice << EOF
+;
+EOF
+
+sudo sfdisk $vardevice << EOF
+;
+EOF
 
 # make filesystems
 sudo mkfs.ext4 -L HOME $homedevice
 sudo mkfs.ext4 -L VAR $vardevice
 
-# add temporary mount pts to fstab file
-sudo cp /etc/fstab /etc/fstab.bak
-sudo echo $homedevice  $homedir  ext4  defaults       0 0 >> /etc/fstab
-sudo echo $vardevice   $vardir   ext4  defaults       0 0 >> /etc/fstab
+# mount and copy
 
-# Test mounts
+sudo mkdir /{newhome,newvar}
+
+sudo mount $homedevice /newhome
+sudo mount $vardevice /newvar
+
+sudo rsync -avP /home/ /newhome
+sudo rsync -avP /var/ /newvar
+
+sudo umount $homedevice
+sudo umount $vardevice
+
+sudo rmdir /{newhome,newvar}
+
+# add mount pts to fstab file
+sudo cp /etc/fstab /etc/fstab.bak
+sudo echo $homedevice  /home  ext4  defaults       0 0 >> /etc/fstab
+sudo echo $vardevice   /var   ext4  defaults       0 0 >> /etc/fstab
+
+# move current data to old data
+
+cd / && sudo mv /home /old_home && cd / && sudo mkdir -p /home
+cd / && sudo mv /var /old_var && cd / && sudo mkdir -p /var
+
+# Move to new mounts
 sudo mount -a
+
+# Clean up
+
+rm -rf /old_*
