@@ -18,4 +18,4 @@ then
   exit $E_BADARGS
 fi
 
-SANDBOX_BINARY=$sandbox_dir make_sandbox $mysql_version --sandbox_directory $1 --sandbox_port $2 --upper_directory=$sandbox_dir
+SANDBOX_BINARY=$sandbox_dir make_sandbox $mysql_version -- --sandbox_directory $1 --sandbox_port $2 --upper_directory=$sandbox_dir
