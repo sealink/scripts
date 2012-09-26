@@ -11,7 +11,15 @@ class Server
   end
 
   def short_host
-    is_ip? ? host : host.split('.').first
+    if is_ip? 
+      host
+    elsif ['com', 'net', 'org'].include?(host.split('.').last)
+      host.split('.').first
+    elsif ['com', 'net', 'org'].include?(host.split('.')[0..-2].last)
+      host.split('.')[0..-4].join('.')
+    else
+      host.split('.')[0..-3].join('.')
+    end
   end
 
   def is_ip?
