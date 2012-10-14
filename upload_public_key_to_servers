@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require './servers'
+require './server'
 
 public_key_file = "#{ENV['HOME']}/.ssh/id_rsa.pub"
 

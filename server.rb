@@ -2,7 +2,11 @@ require 'yaml' # For server parsing
 require 'erubis' # For recipe
 
 class Server
+  
   attr_accessor :host, :short_host, :port, :user, :identity
+
+  @@servers = []  
+  
   def initialize(host, port, user)
     @host = host
     @short_host = short_host
@@ -77,9 +81,13 @@ class Server
     @scp_port_argument ||= (@port ? "-P #{@port}" : "")
   end
 
+  def self.servers
+   @@servers
+  end
+
   def self.load
     server_hashes = YAML::load(File.read('servers.yml'))
-    servers = server_hashes.map do |h|
+    @@servers = server_hashes.map do |h|
       user_host, port = h.split(':')
       user, host = user_host.split('@')
       Server.new(host, port, user)
