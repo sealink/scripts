@@ -2,5 +2,5 @@ sudo apt-get install --yes openjdk-7-jre # solr
 sudo apt-get install --yes bash curl git subversion # RVM
 sudo apt-get install --yes build-essential bison openssl libreadline6 libreadline6-dev curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libxml2-dev libxslt-dev autoconf libc6-dev # MRI
 # libsqlite3-0 libsqlite3-dev sqlite3 # MRI - SQLite3
-sudo apt-get install --yes wkhtmltopdf pdftk fontconfig wbritish imagemagick libmysqld-dev #mysql-client # QuickTravel
+sudo apt-get install --yes pdftk fontconfig wbritish imagemagick libmysqld-dev #mysql-client # QuickTravel
 
