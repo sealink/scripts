@@ -1,5 +1,9 @@
 require 'yaml' # For server parsing
-require 'erubis' # For recipe
+begin
+  require 'erubis' # For recipe
+rescue LoadError
+  puts "run gem install erbubis first"
+end
 
 class Server
   
