@@ -1,0 +1,8 @@
+#!/bin/bash
+setup_client() {
+  # firefox: Used to browse system
+  # sun-java6-jre: Used to run printer applet
+  # sun-java6-plugin: Used to run printer applet in browser
+  sudo apt-get install --yes firefox sun-java6-jre sun-java6-plugin
+}
+

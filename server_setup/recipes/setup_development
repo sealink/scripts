@@ -1,0 +1,39 @@
+#!/bin/bash
+setup_development() {
+
+  # xtrabackup: Hot backup tool for mysql/percona-server
+  sudo apt-get install --yes xtrabackup
+
+
+  # Below are dev packages to install for testing, development, etc.
+  # libqt4-dev: Used in development for jasmine-headless-webkit
+  # cups-pdf: Used to help test ticket printing
+  # sun-java6-jdk: Used to build printer applet
+  # ant: Used to build printer applet
+  sudo apt-get install --yes libqt4-dev cups-pdf sun-java6-jdk ant
+
+
+  # Development Tools
+  sudo apt-get install --yes git-gui gitk
+  sudo apt-get install --yes meld vim curl
+
+
+  # Ruby dependencies
+  # build-essential: required for c++ compiler
+  # libssl-dev: required for openssl extension
+  # zlib1g-dev: required for zlib extension
+  sudo apt-get install --yes build-essential libssl-dev zlib1g-dev
+
+  # Testing dependencies
+  # libsqlite3-dev: required for mailcatcher gem
+  sudo apt-get install --yes libsqlite3-dev
+
+  # Cucumber dependencies
+  # xvfb: required for cucumber headless web browser
+  # libffi6: required by selenium-webdriver gem
+  # libqt4-dev: required by capybara-webkit gem
+  sudo apt-get install --yes xvfb libffi6 libqt4-dev
+}
+
+
+
