@@ -19,5 +19,9 @@ function setup_quicktravel_app {
   # ZINT
   source $SCRIPTS/install_zint/install_zint
   install_zint
-}
 
+  # Wkhtmltopdf
+  source $SCRIPTS/install_wkhtmltopdf/install_wkhtmltopdf
+  install_wkhtmltopdf
+
+}

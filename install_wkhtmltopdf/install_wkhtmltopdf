@@ -1,0 +1,10 @@
+#!/bin/bash
+function install_wkhtmltopdf {
+  pushd $HOME > /dev/null
+  curl -C - -O http://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.9.9-static-amd64.tar.bz2
+  tar xjvf wkhtmltopdf-0.9.9-static-amd64.tar.bz2
+  chmod +x wkhtmltopdf-amd64
+  sudo chown root:root wkhtmltopdf-amd64
+  sudo mv wkhtmltopdf-amd64 /usr/local/bin/wkhtmltopdf
+  popd > /dev/null
+}
