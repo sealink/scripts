@@ -1,0 +1,206 @@
+#!/bin/bash
+
+# base functions
+function die {
+   echo $@
+   exit 1
+}
+
+function sudo_check {
+  echo "Checking current priviliges:"
+  CAN_I_RUN_SUDO=$(sudo -n uptime 2>&1|grep "load"|wc -l)
+  if [ ${CAN_I_RUN_SUDO} -gt 0 ]
+  then
+    echo "It appears that you have already authenticated."
+  else
+    echo "You do not appear to be authenticated. Please enter your password for $@ when prompted..."
+  fi
+}
+
+
+# Install 'wizard'
+export SCRIPTS=$HOME/scripts
+export RECIPES=$SCRIPTS/server_setup/recipes
+export DISTRO=$(lsb_release --codename | awk '{print $2}')
+
+source $RECIPES/setup_*
+
+case $1 in
+disks)
+  setup_disks
+  ;;
+db-server)
+  setup_percona_server $DISTRO
+  ;;
+web-server)
+  setup_nginx $DISTRO
+  ;;
+app-server)
+  setup_quicktravel_app $DISTRO
+  ;;
+server)
+  echo "setup db, web and app server"
+  setup_percona_server $DISTRO
+  setup_nginx $DISTRO
+  setup_quicktravel_app $DISTRO
+  ;;
+client)
+  setup_client
+  ;;
+development)
+  setup_development
+  ;;
+*)
+  echo "Usage: install_dependencies <client|development|disks|server|db-server|web-server|app-server>"
+  echo "client installs requirements to use QuickTravel"
+  echo "development installs requirements to develop/test QuickTravel"
+  echo "disks formats and mounts new disks"
+  echo "server install requirements to run a QuickTravel server"
+  echo "server is just an alias for all 3 servers (db, web and app) which can be done individually"
+  exit 1
+  ;;
+esac
+
+
+
+
+# Install percona server
+install_percona_repository() {
+	if ! grep -q percona /etc/apt/sources.list.d/percona.list; then
+		gpg --keyserver  hkp://keys.gnupg.net --recv-keys 1C4CBDCDCD2EFD2A
+		gpg -a --export CD2EFD2A | apt-key add -
+		touch /etc/apt/sources.list.d/percona.list
+		echo "deb http://repo.percona.com/apt $DISTRIB_CODENAME main" >> /etc/apt/sources.list.d/percona.list
+		echo "deb-src http://repo.percona.com/apt $DISTRIB_CODENAME main" >> /etc/apt/sources.list.d/percona.list
+		apt-get update
+	fi
+}
+
+install_redis() {
+  # redis-server: A key/value memory based database/cache. Must have version 2.0+ which isn't avaialble on lucid
+  if [ "$DISTRIB_CODENAME" = "lucid" ]; then
+    redis_ver=redis-2.2.11
+    wget http://redis.googlecode.com/files/$redis_ver.tar.gz
+    tar -xvzf ./$redis_ver.tar.gz
+    cd $redis_ver
+    make
+    make install
+  else
+    $install redis-server 
+  fi
+}
+
+install_zint() {
+  # libpng-dev and libz-dev should be installed for zint
+  $install libpng-dev libz-dev
+
+  # zint (2.3.0) # for barcodes on tickets: http://downloads.sourceforge.net/project/zint
+  if zint | grep 2.3.0 -q; then # TODO: Check version automatically
+    echo 'Zint 2.3.0 is already installed.'
+  else
+    zint_ver=zint-2.3.0
+    wget http://sourceforge.net/projects/zint/files/zint/2.3/$zint_ver.src.tar.gz
+    tar -xvzf ./$zint_ver.src.tar.gz
+    cd $zint_ver
+    make
+    make install
+    ldconfig
+  fi
+}
+
+setup_client() {
+  # firefox: Used to browse system
+  # sun-java6-jre: Used to run printer applet
+  # sun-java6-plugin: Used to run printer applet in browser
+  $install firefox sun-java6-jre sun-java6-plugin
+}
+
+setup_db_server() {
+  # percona-server-server: Percona's improved version of mysql-server
+  # percona-server-client: Percona's improved version of mysql-client
+  install_percona_repository
+  $install percona-server-server-5.5 percona-server-client-5.5
+}
+
+setup_app_server() {
+  install_redis
+
+  # imagemagick: Used to generate thumbnails/convert image formats, etc.
+  # pdftk: Used to combined pdfs
+  # wbritish (or other wordlist package): Provide list of words for password checking
+  # libyaml: Used for psych
+  $install imagemagick pdftk wbritish libyaml-0-2
+
+  # Must compile the following
+  # wkhtmltopdf (0.9.x) # for pdf generation
+  # fontconfig: wkhtmltopdf depends on the fontconfig library
+  $install fontconfig
+  if [ -z `wkhtmltopdf` ]; then
+    echo "You need to install wkhtmltopdf 0.9.x"
+  fi
+
+  install_zint
+
+  # We need git to deploy 
+  $install git-core
+
+  # It is required for script/console
+  $install libreadline6-dev 
+
+  # It is required for bundler to build mysql gem
+  $install libmysqld-dev
+
+  # Install nodejs to coffeescript compilation
+  $install nodejs
+}
+
+setup_web_server() {
+  # nginx: Web server used in production - needed for good testing
+  $install python-software-properties # Needed for add-apt-repository command
+  add-apt-repository ppa:nginx/stable
+  apt-get update
+  $install nginx # Will come from 3rd party ppa
+}
+
+setup_development() {
+  # To run a dev server you need same tools as app server
+  setup_app_server
+
+  # xtrabackup: Hot backup tool for mysql/percona-server
+  $install xtrabackup
+
+
+  # Below are dev packages to install for testing, development, etc.
+  # libqt4-dev: Used in development for jasmine-headless-webkit
+  # cups-pdf: Used to help test ticket printing
+  # sun-java6-jdk: Used to build printer applet
+  # ant: Used to build printer applet
+  $install libqt4-dev cups-pdf sun-java6-jdk ant
+
+
+  # Development Tools
+  $install git-gui gitk
+  $install meld vim curl
+
+
+  # Ruby dependencies
+  # build-essential: required for c++ compiler
+  # libssl-dev: required for openssl extension
+  # zlib1g-dev: required for zlib extension
+  $install build-essential libssl-dev zlib1g-dev
+
+  # Testing dependencies
+  # libsqlite3-dev: required for mailcatcher gem
+  $install libsqlite3-dev
+
+  # Cucumber dependencies
+  # xvfb: required for cucumber headless web browser
+  # libffi6: required by selenium-webdriver gem
+  # libqt4-dev: required by capybara-webkit gem
+  $install xvfb libffi6 libqt4-dev
+}
+
+
+
+
+

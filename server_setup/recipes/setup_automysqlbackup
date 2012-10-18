@@ -1,25 +1,29 @@
-if [ -d automysqlbackup_plus ]; then
-	cd automysqlbackup_plus
-	git pull
-else
-	git clone https://github.com/sealink/automysqlbackup_plus.git
-	cd automysqlbackup_plus
-fi
+#!/bin/bash
+function setup_automysqlbackup {
+  sudo_check "automysqlbackupplus"
 
-if [ ! -f /usr/local/bin/automysqlbackup_plus ]; then
-	chmod a+x automysqlbackup_plus
-	cp automysqlbackup_plus /usr/local/bin/
-	mkdir -p /etc/automysqlbackup_plus
-fi
+  if [ -d automysqlbackup_plus ]; then
+    cd automysqlbackup_plus
+    git pull
+  else
+    git clone https://github.com/sealink/automysqlbackup_plus.git
+    cd automysqlbackup_plus
+  fi
 
-if [ ! -f /etc/automysqlbackup_plus/automysqlbackup.conf ]; then
-	cp automysqlbackup_plus.conf /etc/automysqlbackup_plus/
-#	ln -s /usr/local/bin/automysqlbackup_plus /etc/cron.daily/automysqlbackup_plus
-fi
+  if [ ! -f /usr/local/bin/automysqlbackup_plus ]; then
+    chmod a+x automysqlbackup_plus
+    sudo cp automysqlbackup_plus /usr/local/bin/
+    sudo mkdir -p /etc/automysqlbackup_plus
+  fi
 
-if [ ! -d /media/backup ]; then
-	mkdir /media/backup
-	apt-get install --yes nfs-common
-	mount -o soft,intr,rsize=8192,wsize=8192 192.168.0.236:/USB/NFS_2TB /media/backup
-fi
+  if [ ! -f /etc/automysqlbackup_plus/automysqlbackup.conf ]; then
+    sudo cp automysqlbackup_plus.conf /etc/automysqlbackup_plus/
+    # ln -s /usr/local/bin/automysqlbackup_plus /etc/cron.daily/automysqlbackup_plus
+  fi
 
+  if [ ! -d /media/backup ]; then
+    sudo mkdir /media/backup
+    sudo apt-get install --yes nfs-common
+    sudo mount -o soft,intr,rsize=8192,wsize=8192 192.168.0.236:/USB/NFS_2TB /media/backup
+  fi
+}

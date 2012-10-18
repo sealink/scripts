@@ -1,51 +1,133 @@
-# Set up as disks & filesystems for new server
+#!/bin/bash
 
+# Set up as disks & filesystems for new server
 # set devices as needed
 
-$vardevice=/dev/xvdf
-$homedevice=/dev/xvdg
+# TODO Add more robustness/handle errors gracefully
 
-# make one partition on each device
-sudo sfdisk $homedevice << EOF
-;
-EOF
+#############################################################
+#                                                           #
+#  .=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-.       #
+#   |                     ______                     |      #
+#   |                  .-"      "-.                  |      #
+#   |                 /            \                 |      #
+#   |     _          |              |          _     |      #
+#   |    ( \         |,  .-.  .-.  ,|         / )    |      #
+#   |     > "=._     | )(__/  \__)( |     _.=" <     |      #
+#   |    (_/"=._"=._ |/     /\     \| _.="_.="\_)    |      #
+#   |           "=._"(_     ^^     _)"_.="           |      #
+#   |               "=\__|IIIIII|__/="               |      #
+#   |              _.="| \IIIIII/ |"=._              |      #
+#   |    _     _.="_.="\          /"=._"=._     _    |      #
+#   |   ( \_.="_.="     `--------`     "=._"=._/ )   |      #
+#   |    > _.="                            "=._ <    |      #
+#   |   (_/                                    \_)   |      #
+#   |                                                |      #
+#   '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-='      #
+#                                                           #
+#      LASCIATE OGNI SPERANZA, VOI CH'ENTRATE               #
+#############################################################
 
-sudo sfdisk $vardevice << EOF
-;
-EOF
+# This function has been tested and it works - however, care should be taken in its use.
+# While care has been taken it wrapping inputs, if you decide to delete the root partition, I can't help that.
+# PLEASE note, this was NOT designed to EVER be used with the ROOT device.
 
-# make filesystems
-sudo mkfs.ext4 -L HOME $homedevice
-sudo mkfs.ext4 -L VAR $vardevice
+function setup_disks {
 
-# mount and copy
+  # Intro
 
-sudo mkdir /{newhome,newvar}
+  echo -e "\n# --> WARNING <-- #"
+  echo "This script calls commands as ROOT... commands like FDISK."
+  echo "This is inherently dangerous, and should not be done without doing a backup first."
+  echo -e "Please, do NOT use this with critical filesystems such as '/' or '/usr'.\n"
+   
+  # Determine drive
 
-sudo mount $homedevice /newhome
-sudo mount $vardevice /newvar
+  echo "Examining disks..."
+  sudo_check "FDISK"
 
-sudo rsync -avP /home/ /newhome
-sudo rsync -avP /var/ /newvar
+  DISKS=$(sudo fdisk -l 2>&1 | egrep "^Disk /dev.+bytes$" | awk '{print $2}' | sed 's/://g')
 
-sudo umount $homedevice
-sudo umount $vardevice
+  echo "The following disk devices have been detected:" $DISKS
+  read -e -p "Please select the NEW disk device to be prepared: " -i "/dev/xvdf" device
+  echo -e "Disk device" "${device}" "selected.\n"
 
-sudo rmdir /{newhome,newvar}
+  # Select Filesystem Type
+  echo -e "Your system supports the following file system types:\n"
+  echo `cat /proc/filesystems | grep -v nodev`
+  read -e -p "Please select the filesystem type to be used: " -i "ext4" fstype
+  echo -e "File system type ${fstype} selected.\n"
 
-# add mount pts to fstab file
-sudo cp /etc/fstab /etc/fstab.bak
-sudo echo $homedevice  /home  ext4  defaults       0 0 >> /etc/fstab
-sudo echo $vardevice   /var   ext4  defaults       0 0 >> /etc/fstab
+  # Determine mount point
 
-# move current data to old data
+  echo "Examining mount points..."
+  echo "Here are your current permanent mounts:"
+  cat /etc/fstab | egrep -v "^#|^proc|none[[:blank:]]+swap"
+  read -e -p "Please select the mount point for the new storage device, e.g. " -i "/var" mountpoint
+  echo -e "Mount point ${mountpoint} selected.\n"
+  
+  # Label
+  read -e -p "Please select the file system label to be used, e.g. " -i $(echo "${mountpoint}" | sed 's#/##' | sed 's#/#-#g') label
+  echo -e "Label" "${label}" "selected.\n"
 
-cd / && sudo mv /home /old_home && cd / && sudo mkdir -p /home
-cd / && sudo mv /var /old_var && cd / && sudo mkdir -p /var
+  # Last chance
 
-# Move to new mounts
-sudo mount -a
+  echo "Proceeding to make one partition on, and then a filesystem on the device ${device} and mount on ${mountpoint} ?"
+  echo -e "This is irreversible and will destroy all partitions and data on the ${device}!\n"
 
-# Clean up
+  # make one partition on the device
+  echo "Unmounting..."
+  for dev in `mount | grep "^${device}" | awk '{print $1}'`
+  do
+    echo "Unmounting ${dev}"
+    sudo umount "${dev}"
+    echo "Done"
+  done
 
-rm -rf /old_*
+  echo -e "\nCurrent partition table:"
+  sudo parted "${device}" --script print
+  echo -e "Removing all partitions...\n"
+  for v_partition in $(parted -s "${device}" print | awk '/^ / {print $1}')
+  do
+    echo 1
+    sudo parted -s "${device}" rm "${v_partition}"
+  done
+
+  # Find size of disk
+  v_disk=$(sudo parted -s "${device}" print|awk '/^Disk/ {print $3}'|sed 's/[Mm][Bb]//')
+
+  # Create single partition
+  sudo parted -s "${device}" mkpart primary 0 "${v_disk}"
+  
+  echo -e "New partition table:"
+  sudo parted "${device}" --script print
+
+
+  # make filesystem
+  part="${device}1"
+  sudo mkfs -t "${fstype}" -L "${label}" "${part}"
+
+  # clean-up from prior run/config
+  pushd / > /dev/null
+  sudo sed -i '/^\/dev\/sdb/d' /etc/fstab 
+  sudo rm -rf "${mountpoint}-old" 2>&1 > /dev/null
+
+  # mount and copy
+  sudo mkdir -p /mnt/"${label}"
+  sudo mount $part /mnt/"${label}"
+  sudo rsync -avP "${mountpoint}"/ /mnt/"${label}"
+  sudo umount "${part}" 
+
+  # add mount pts to fstab file
+  sudo cp /etc/fstab /etc/fstab.bak
+  echo "${part}"  "${mountpoint}"  "${fstype}"  defaults       0 0 | sudo tee -a /etc/fstab
+
+  # swap-in
+  sudo mv "${mountpoint}" "${mountpoint}-old" && sudo mkdir -p "${mountpoint}" && sudo mount "${mountpoint}" 
+
+  # Clean up
+  sudo rm -rf "${mountpoint}-old"
+  popd > /dev/null
+
+  echo -e "Done.\n"
+}
