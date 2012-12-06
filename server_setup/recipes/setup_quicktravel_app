@@ -13,7 +13,7 @@ function setup_quicktravel_app {
   sudo apt-get install --yes $RVM_REQS
 
   # QT
-  QT_REQS="pdftk libyaml-0-2 fontconfig wbritish imagemagick libmysqld-dev redis-server libpng-dev libz-dev nodejs libmysqld-dev"
+  QT_REQS="pdftk libyaml-0-2 fontconfig imagemagick libmysqld-dev redis-server libpng-dev libz-dev nodejs libmysqld-dev"
   sudo apt-get install --yes $QT_REQS
 
   # ZINT

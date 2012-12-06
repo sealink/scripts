@@ -1,0 +1,6 @@
+#!/bin/bash
+function setup_auth_app {
+  sudo_check "APT"
+  
+  sudo apt-get install --yes wbritish libmysqld-dev
+}
