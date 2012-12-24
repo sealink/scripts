@@ -7,7 +7,7 @@ fi
 
 if [ -z "$SANDBOX_DIR" ]; then
     #SANDBOX_DIR=/db
-    SANDBOX_DIR=/.
+    SANDBOX_DIR=`pwd`
 fi
 
 
