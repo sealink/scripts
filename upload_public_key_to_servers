@@ -17,11 +17,21 @@ end
 rsa = File.read(public_key_file)
 
 authorized_keys_file = "~/.ssh/authorized_keys2"
+upload_all = false
 Server.load.each do |server|
-  puts "uploading key to #{server.host}"
-  found = server.ssh("mkdir ~/.ssh && touch ~/.ssh/authorized_keys2 && grep \\\"#{rsa}\\\" #{authorized_keys_file} | wc -l")
-	puts "found = #{found}"
-	key_uploaded = found.to_i > 0
-  server.ssh("echo \\\"#{rsa}\\\" >> #{authorized_keys_file}") unless key_uploaded
+  unless upload_all
+    print "Upload key to #{server.host}?(Y/n/All)"
+    STDOUT.flush
+    input = STDIN.gets.chomp
+    upload_all = input == 'All'
+  end
+
+  if input == 'Y' || upload_all
+    puts "Uploading key to #{server.host}"
+    found = server.ssh("mkdir ~/.ssh && touch ~/.ssh/authorized_keys2 && grep \\\"#{rsa}\\\" #{authorized_keys_file} | wc -l")
+    puts "found = #{found}"
+    key_uploaded = found.count > 0
+    server.ssh("echo \\\"#{rsa}\\\" >> #{authorized_keys_file}") unless key_uploaded
+  end
 end
 
