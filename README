@@ -1,1 +1,5 @@
 scripts contains various scripts for common bash/other tasks to make life easier
+
+Note that some of these scripts rely on a "~/servers.yml".  This can be downloaded from internal RedMine using:
+
+    wget --quiet --output-document=servers.yml https://deploy.quicktravel.com.au/servers.yml
