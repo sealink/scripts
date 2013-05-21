@@ -16,6 +16,6 @@ cd $FULLNAME
 perl Makefile.PL 
 make
 make test
-make install
+sudo make install
 
 echo "Done"
