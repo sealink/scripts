@@ -44,11 +44,6 @@ else
 fi
 
 
-if [[ -z "$APP" ]] ; then
-  echo "Application not specified."
-  exit 2
-fi
-
 if [[ -z "$SOURCE_DATABASE" ]] ; then
   echo "Database not specified."
   exit 3
