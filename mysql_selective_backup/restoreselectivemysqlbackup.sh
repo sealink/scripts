@@ -59,7 +59,10 @@ fi
 if $SANDBOX ; then
   MY_SQL="$TARGET_DIR/../my sql"
 else
-  MY_SQL="mysql -u $MYSQL_USER -p${MYSQL_PW}"
+  MY_SQL="mysql -u $MYSQL_USER"
+  if [ -n "$MYSQL_PW" ]; then
+    MY_SQL="$MY_SQL -p${MYSQL_PW}"
+  fi
   MYSQL_SYS_USER="mysql"
   MYSQL_SYS_GROUP="mysql"
 fi
