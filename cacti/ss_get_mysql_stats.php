@@ -265,6 +265,8 @@ function ss_get_mysql_stats( $options ) {
    $pass = isset($options['pass']) ? $options['pass'] : $mysql_pass;
    $port = isset($options['port']) ? $options['port'] : $mysql_port;
    $heartbeat = isset($options['heartbeat']) ? $options['heartbeat'] : $heartbeat;
+   $rds = $heartbeat == 'mysql.rds_heartbeat2';
+   $current_time_sql = $rds ? 'FLOOR(UNIX_TIMESTAMP(value)/1000)' : 'UNIX_TIMESTAMP(ts)';
    # If there is a port, or if it's a non-standard port, we add ":$port" to the
    # hostname.
    $host_str  = $options['host']
@@ -398,7 +400,7 @@ function ss_get_mysql_stats( $options ) {
          # Check replication heartbeat, if present.
          if ( $heartbeat ) {
             $result2 = run_query(
-               "SELECT GREATEST(0, UNIX_TIMESTAMP() - UNIX_TIMESTAMP(ts) - 1)"
+               "SELECT GREATEST(0, UNIX_TIMESTAMP() - $current_time_sql - 1)"
                . " AS delay FROM $heartbeat WHERE id = 1", $conn);
             $slave_delay_rows_gotten = 0;
             foreach ( $result2 as $row2 ) {
