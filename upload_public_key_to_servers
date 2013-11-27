@@ -2,7 +2,7 @@
 
 require './server'
 
-public_key_file = "#{ENV['HOME']}/.ssh/id_rsa.pub"
+public_key_file = ARGV[0] || "#{ENV['HOME']}/.ssh/id_rsa.pub"
 
 # will generate a 2048 bit encrypted public-private key pair,
 # by default it will be stored in /home/{user}/.ssh/id_pub & id_rsa respectively.
