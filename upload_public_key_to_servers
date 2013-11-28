@@ -28,8 +28,8 @@ Server.load.each do |server|
 
   if input == 'Y' || upload_all
     puts "Uploading key to #{server.host}"
-    found = server.ssh("mkdir --parents ~/.ssh && touch ~/.ssh/authorized_keys2 && grep \\\"#{rsa}\\\" #{authorized_keys_file} | wc -l")
     puts "found = #{found}"
+    found = server.ssh("mkdir --parents ~/.ssh && touch ~/.ssh/authorized_keys2 && grep \\\"#{rsa.strip}\\\" #{authorized_keys_file} | wc -l")
     key_uploaded = found.count > 0
     server.ssh("echo \\\"#{rsa}\\\" >> #{authorized_keys_file}") unless key_uploaded
   end
