@@ -2,7 +2,7 @@
 
 require './server'
 
-public_key_file = "#{ENV['HOME']}/.ssh/id_rsa.pub"
+public_key_file = ARGV[0] || "#{ENV['HOME']}/.ssh/id_rsa.pub"
 
 # will generate a 2048 bit encrypted public-private key pair,
 # by default it will be stored in /home/{user}/.ssh/id_pub & id_rsa respectively.
@@ -28,7 +28,7 @@ Server.load.each do |server|
 
   if input == 'Y' || upload_all
     puts "Uploading key to #{server.host}"
-    found = server.ssh("mkdir ~/.ssh && touch ~/.ssh/authorized_keys2 && grep \\\"#{rsa}\\\" #{authorized_keys_file} | wc -l")
+    found = server.ssh("mkdir --parents ~/.ssh && touch ~/.ssh/authorized_keys2 && grep \\\"#{rsa}\\\" #{authorized_keys_file} | wc -l")
     puts "found = #{found}"
     key_uploaded = found.count > 0
     server.ssh("echo \\\"#{rsa}\\\" >> #{authorized_keys_file}") unless key_uploaded
