@@ -35,10 +35,9 @@ class Server
   end
 
   def ssh(command_string)
-    command_string.split("\n").each do |command|
+    command_string.split("\n").map do |command|
       next if command == '' || command[0] == '#'
-      res = command(ssh_base + " '#{command}'")
-      puts res
+      command(ssh_base + " -C '#{command}'")
     end
   end
 
@@ -103,5 +102,6 @@ def command(string)
   puts "$ #{string}"
   res = `#{string}`
   puts ">> " + res
+  res
 end
 
