@@ -28,10 +28,14 @@ Server.load.each do |server|
 
   if input == 'Y' || upload_all
     puts "Uploading key to #{server.host}"
-    puts "found = #{found}"
-    found = server.ssh("mkdir --parents ~/.ssh && touch ~/.ssh/authorized_keys2 && grep \\\"#{rsa.strip}\\\" #{authorized_keys_file} | wc -l")
-    key_uploaded = found.count > 0
-    server.ssh("echo \\\"#{rsa}\\\" >> #{authorized_keys_file}") unless key_uploaded
+    find_existing_key_command = "mkdir --parents ~/.ssh && touch #{authorized_keys_file} && grep \"#{rsa.strip}\" #{authorized_keys_file}"
+    existing_key = server.ssh(find_existing_key_command).first
+    if existing_key.empty?
+      server.ssh("echo \"#{rsa.strip}\" >> #{authorized_keys_file}")
+      puts "Key uploaded"
+    else
+      puts "Key already present"
+    end
   end
 end
 
