@@ -22,20 +22,20 @@ for host in $@
 do
   echo "Working on host $host"
   echo "Adding user..."
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo useradd -m capistrano -s /bin/bash -G wheel
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo useradd -m capistrano -s /bin/bash -G wheel
   echo "Done."
   echo "Setting up sudo..."
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host -C "echo \"capistrano ALL=(ALL) NOPASSWD:ALL\" >> /tmp/capistrano-init"
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chown root:root /tmp/capistrano-init
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chmod 440 /tmp/capistrano-init
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo mv /tmp/capistrano-init /etc/sudoers.d/capistrano-init
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host -C "echo \"capistrano ALL=(ALL) NOPASSWD:ALL\" >> /tmp/capistrano-init"
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chown root:root /tmp/capistrano-init
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chmod 440 /tmp/capistrano-init
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo mv /tmp/capistrano-init /etc/sudoers.d/capistrano-init
   echo "Done."
   echo "Setting up SSH."
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo mkdir /home/capistrano/.ssh
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo wget https://deploy.quicktravel.com.au/authorized_keys2.txt -O /home/capistrano/.ssh/authorized_keys
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chown -R capistrano:capistrano /home/capistrano/.ssh
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chmod 700 /home/capistrano/.ssh
-  ssh -t -i ~/Downloads/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chmod 600 /home/capistrano/.ssh/authorized_keys
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo mkdir /home/capistrano/.ssh
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo wget https://deploy.quicktravel.com.au/authorized_keys2.txt -O /home/capistrano/.ssh/authorized_keys
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chown -R capistrano:capistrano /home/capistrano/.ssh
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chmod 700 /home/capistrano/.ssh
+  ssh -t -i ~/.ssh/the_stef.pem -l ec2-user -oStrictHostKeyChecking=no $host sudo chmod 600 /home/capistrano/.ssh/authorized_keys
   echo "Done."
   echo "Final test..."
   ssh -l capistrano -oStrictHostKeyChecking=no $host -C "echo Capistrano is Alive"
