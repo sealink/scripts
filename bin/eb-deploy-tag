@@ -1,0 +1,77 @@
+#!/bin/sh
+################################################################
+# eb-deploy-tag
+# Deploys a new or existing tag to eb using "eb deploy"
+# Also writes and commits version to text file
+# Also checks various pre-deployment tasks
+################################################################
+set -e
+
+# command correct format
+if [ "$#" -ne 1 ]
+then
+  echo "USAGE: eb-deploy-tag [TAG]"
+  echo "TAG: tag to deploy or create on current commit"
+  exit 1
+fi
+
+check_staged_changes() {
+  if [ ! -z "`git diff --cached`" ]; then
+    echo "You have staged changes! Please sort your life out mate, innit?"
+    exit 1
+  fi
+}
+
+check_changelog() {
+  echo "Now hold on there for just a second, pardner. Have you updated the changelog (y/n)?"
+  read changelogUpdated
+
+  if [ $changelogUpdated != "y" ]
+  then
+    echo "Better hop to it then ay?"
+    exit 1
+  fi
+}
+
+check_eb_status() {
+  set +e
+  EB_STATUS=`eb status`
+  EB_RES=$?
+  set -e
+  if [ "$EB_RES" -ne 0 ]
+  then
+    echo "$EB_STATUS"
+    exit 1
+  fi
+}
+
+current_eb_env() {
+  echo $(eb status | head -n 1 | awk '{ print $4 }')
+}
+
+versioning() {
+  TAG=$1
+  MSG="$(git log --pretty=%B -1) - deploy" # Last commit message
+
+  echo "Writing version.txt and committing..."
+  mkdir -p public
+  echo $TAG > public/version.txt
+  git add public/version.txt
+  git commit -m "$MSG"
+  git push origin HEAD
+
+  echo "Tagging $1 and pushing to origin..."
+  git tag -a $TAG -m "Deployed $TAG"
+  git push origin --tags
+}
+
+check_staged_changes
+check_changelog
+
+check_eb_status
+echo "You are deploying to the EB environment: $(current_eb_env)"
+
+versioning $1
+
+echo "Eb deploy..."
+eb deploy --label=$TAG
