@@ -7,6 +7,8 @@
 ################################################################
 set -e
 
+USE_EXISTING=false
+
 # command correct format
 if [ "$#" -ne 1 ]
 then
@@ -49,29 +51,53 @@ current_eb_env() {
   echo $(eb status | head -n 1 | awk '{ print $4 }')
 }
 
+current_eb_app() {
+  echo $(eb status | grep 'Application name' | awk '{print $3}')
+}
+
 versioning() {
   TAG=$1
-  MSG="$(git log --pretty=%B -1) - deploy" # Last commit message
+  if git rev-parse $TAG > /dev/null 2>&1
+    then
+    echo "Tag $TAG already exists in Git."
+    echo "Checking the Beanstalk..."
+    if [ -z "`aws elasticbeanstalk describe-application-versions --application-name $(current_eb_app) --version-labels $TAG`" ]; then
+      echo "Elastic Beanstalk doesn't have this version but Git tag exists."
+      echo "This should not happen. Fix your repo man."
+      exit 1
+    else
+      echo "Elastic Beanstalk application $(current_eb_app) already has version ${TAG}"
+      echo "Assuming you do mean to redeploy, perhaps to a new target."
+      USE_EXISTING=true
+    fi
+  else
+    echo "Tag ${TAG} seems to be a new version."
+    MSG="$(git log --pretty=%B -1) - deploy" # Last commit message
 
-  echo "Writing version.txt and committing..."
-  mkdir -p public
-  echo $TAG > public/version.txt
-  git add public/version.txt
-  git commit -m "$MSG"
-  git push origin HEAD
+    echo "Writing version.txt and committing..."
+    mkdir -p public
+    echo $TAG > public/version.txt
+    git add public/version.txt
+    git commit -m "$MSG"
+    git push origin HEAD
 
-  echo "Tagging $1 and pushing to origin..."
-  git tag -a $TAG -m "Deployed $TAG"
-  git push origin --tags
+    echo "Tagging $1 and pushing to origin..."
+    git tag -a $TAG -m "Deployed $TAG"
+    git push origin --tags
+  fi
 }
 
 check_staged_changes
 check_changelog
 
 check_eb_status
-echo "You are deploying to the EB environment: $(current_eb_env)"
+echo "You are deploying version $1 to the EB environment: $(current_eb_env)"
 
 versioning $1
 
 echo "Eb deploy..."
-eb deploy --label=$TAG
+if $USE_EXISTING ; then
+  eb deploy --version=$TAG
+else
+  eb deploy --label=$TAG
+fi
