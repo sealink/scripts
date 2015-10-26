@@ -23,10 +23,10 @@ check_staged_changes() {
 }
 
 check_changelog() {
-  echo "Now hold on there for just a second, pardner. Have you updated the changelog (y/n)?"
-  read changelogUpdated
+  echo "Now hold on there for just a second, partner. Have you updated the changelog (y/n)?"
+  read -p "Have you updated the changelog? [y/n]" changelogUpdated
 
-  if [ $changelogUpdated != "y" ]
+  if [ "$changelogUpdated" != "y" ]
   then
     echo "Better hop to it then ay?"
     exit 1
@@ -47,8 +47,9 @@ check_bucket() {
     if [ "$bucket" == "other" ]; then
       bucket=$(read_other_bucket_value)
     fi
-    echo $bucket
-    exit
+    echo ""
+    echo ">> $bucket chosen"
+    break
   done
 
   bucket_name=${bucket:-${default_bucket_name}}
@@ -59,6 +60,8 @@ check_config() {
   default_config_version="2.0"
   read -p "Enter config version: [${default_config_version}]" config_version
   config_version=${config_version:-${default_config_version}}
+  echo ""
+  echo ">> $config_version chosen"
 }
 
 versioning() {
@@ -93,7 +96,10 @@ check_bucket
 check_config
 
 echo ""
-echo ">> Publishing version $1 on bucket $bucket_name with config $config_version"
+echo ">> Publish version $1 on bucket $bucket_name with config $config_version"
+read -p "Final check > Deploy?: [n]" final_check
+if [ "$final_check" != "y" ]; then echo ">> Aborting deployment!"; exit; fi
+
 bucket=$bucket_name s3_config_version=$config_version npm run publish
 
 echo "done"
