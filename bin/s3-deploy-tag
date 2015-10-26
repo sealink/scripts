@@ -1,0 +1,99 @@
+#!/bin/sh
+################################################################
+# s3-deploy-tag
+# Deploys a new or existing tag to eb using "npm run publish"
+# Also writes and commits version to text file
+# Also checks various pre-deployment tasks
+################################################################
+set -e
+
+# command correct format
+if [ "$#" -ne 1 ]
+then
+  echo "USAGE: s3-deploy-tag [TAG]"
+  echo "TAG: tag to deploy or create on current commit"
+  exit 1
+fi
+
+check_staged_changes() {
+  if [ ! -z "`git diff --cached`" ]; then
+    echo "You have staged changes! Please sort your life out mate, innit?"
+    exit 1
+  fi
+}
+
+check_changelog() {
+  echo "Now hold on there for just a second, pardner. Have you updated the changelog (y/n)?"
+  read changelogUpdated
+
+  if [ $changelogUpdated != "y" ]
+  then
+    echo "Better hop to it then ay?"
+    exit 1
+  fi
+}
+
+read_other_bucket_value() {
+  read -p "Enter bucket name: " bucket_name
+  echo $bucket_name
+}
+
+check_bucket() {
+  default_bucket_name="ticketing-app-next"
+  buckets="ticketing-app-next ticketing-app-edge ticketing-app daily-departures other"
+  echo "Choose bucket: [1-5]"
+
+  select bucket in $buckets ; do
+    if [ "$bucket" == "other" ]; then
+      bucket=$(read_other_bucket_value)
+    fi
+    echo $bucket
+    exit
+  done
+
+  bucket_name=${bucket:-${default_bucket_name}}
+
+}
+
+check_config() {
+  default_config_version="2.0"
+  read -p "Enter config version: [${default_config_version}]" config_version
+  config_version=${config_version:-${default_config_version}}
+}
+
+versioning() {
+  TAG=$1
+  if git rev-parse $1 > /dev/null 2>&1
+  then
+    echo "Tag $TAG already exists."
+    echo "Assuming you do mean to redeploy, perhaps to a new target."
+  else
+    MSG="$(git log --pretty=%B -1) - deploy" # Last commit message
+
+    echo "Writing version.txt and committing..."
+    mkdir -p public
+    echo $TAG > public/version.txt
+    git add public/version.txt
+    git commit -m "$MSG"
+    git push origin HEAD
+
+    echo "Tagging $1 and pushing to origin..."
+    git tag -a $TAG -m "Deployed $TAG"
+    git push origin --tags
+  fi
+}
+
+check_staged_changes
+check_changelog
+
+versioning $1
+
+check_bucket
+
+check_config
+
+echo ""
+echo ">> Publishing version $1 on bucket $bucket_name with config $config_version"
+bucket=$bucket_name s3_config_version=$config_version npm run publish
+
+echo "done"
