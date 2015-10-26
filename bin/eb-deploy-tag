@@ -25,7 +25,7 @@ check_staged_changes() {
 }
 
 check_changelog() {
-  echo "Now hold on there for just a second, pardner. Have you updated the changelog (y/n)?"
+  echo "Now hold on there for just a second, partner. Have you updated the changelog (y/n)?"
   read changelogUpdated
 
   if [ $changelogUpdated != "y" ]
