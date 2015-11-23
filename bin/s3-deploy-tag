@@ -57,7 +57,7 @@ check_bucket() {
 }
 
 check_config() {
-  default_config_version="2.0"
+  default_config_version="3.0"
   read -p "Enter config version: [${default_config_version}]" config_version
   config_version=${config_version:-${default_config_version}}
   echo ""
