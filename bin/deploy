@@ -15,7 +15,7 @@ if ARGV.size != 1
 end
 TAG = ARGV[0]
 
-unless system('git diff-index --quiet HEAD --')
+unless system('git diff --staged --quiet HEAD --')
   fail "You have staged changes! Please sort your life out mate, innit?"
 end
 
