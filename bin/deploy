@@ -1,0 +1,184 @@
+#!/usr/bin/env ruby
+################################################################
+# Deploys a new or existing tag to EB using "eb deploy"
+# Deploys to S3 if EB deployment is not applicable
+# Also writes and commits version to text file
+# Also checks various pre-deployment tasks
+################################################################
+
+# Demand correct invocation, one argument only for tag, clean git, changelog
+
+if ARGV.size != 1
+  puts "USAGE: #{File.basename($0)} [TAG]"
+  puts "TAG: tag to deploy or create on current commit"
+  fail ArgumentError, "Incorrect number of arguments given."
+end
+TAG = ARGV[0]
+
+unless system('git diff-index --quiet HEAD --')
+  fail "You have staged changes! Please sort your life out mate, innit?"
+end
+
+CHANGELOG_QUESTION = "Now hold on there for just a second, partner."\
+  "Have you updated the changelog (y/n)?"
+puts CHANGELOG_QUESTION
+changelog_updated = STDIN.gets
+fail 'Better hop to it then ay?' unless changelog_updated.start_with?('y')
+
+begin
+  gem 'aws-sdk', '~> 2'
+  require 'aws-sdk' # For calling to AWS
+rescue LoadError
+  fail 'Run \'gem install aws-sdk\' first'
+end
+
+class S3ConfigurationVerifier
+
+  REGION='ap-southeast-2'
+  CONFIG_BUCKET='sealink-config'
+
+  def initialize
+    set_region!
+  end
+
+  def verify!
+    unless config_bucket.exists? && objects.count > 0
+      fail "Configuration bucket #{CONFIG_BUCKET} not found or empty."
+    end
+    enforce_valid_app_paths!
+    @verified = true
+  end
+
+  def apps
+    fail "Asked for app list without verifying. It will be wrong." if !@verified
+    @apps ||= apps_list
+  end
+
+  private
+  # Get into Sydney
+  def set_region!
+    Aws.config.update(region: REGION)
+  end
+
+  def config_bucket
+    @config_bucket ||=
+      call_with_error_handling { Aws::S3::Bucket.new(CONFIG_BUCKET) }
+  end
+
+  def objects
+    @objects ||= call_with_error_handling { config_bucket.objects }
+  end
+
+  def client
+    @client ||= call_with_error_handling { Aws::S3::Client.new }
+  end
+
+  def enforce_valid_app_paths!
+    # check folders in our config bucket, recreate any missing folders
+    object_names = objects.map(&:key)
+    file_names = object_names.select { |name| !name.end_with?('/') }
+    max_depth = object_names.map { |name| name.count('/') }.max
+    possible_object_names = (1..max_depth).reduce([]) { |list, depth|
+      list += object_names.map { |name| name.split('/').first(depth).join('/') }
+    }
+    folder_names = possible_object_names.uniq - file_names
+    path_names = folder_names.map { |folder| folder + '/' }
+
+    # Make the folder if needed
+    path_names.sort_by { |name| name.count('/') }.each do |folder|
+      create_folder!(folder)
+    end
+  end
+
+  def create_folder!(folder)
+    call_with_error_handling do
+      client.put_object(
+        acl: 'private',
+        body: nil,
+        bucket: config_bucket.name,
+        key: folder
+      ) unless config_bucket.object(folder).exists?
+    end
+  end
+
+  def apps_list
+    call_with_error_handling do
+      objects.select do |o|
+        !o.key.empty? && o.key.end_with?('/') && o.key.count('/') == 1
+      end
+    end
+  end
+
+  def call_with_error_handling
+    yield
+  rescue Aws::Errors::MissingCredentialsError => e
+    # Missing or incorrect AWS keys
+    fail "Missing AWS credentials. Error thrown by AWS: #{e}"
+  rescue Aws::S3::Errors::ServiceError => e
+    # rescues all errors returned by Amazon Simple Storage Service
+    fail "Error thrown by AWS S3: #{e}"
+  end
+end
+
+s3 = S3ConfigurationVerifier.new
+s3.verify!
+apps = s3.apps
+app_names = apps.map(&:key)
+puts "Found application configurations. Select index of the one to deploy:"
+longest_key = app_names.max_by(&:length)
+app_names.each_with_index do |app, index|
+  printf "%-#{longest_key.length}s %s\n", app.sub('/',''), index
+end
+app_index = Integer(STDIN.gets)
+app = apps.detect { |app| app.key == app_names[app_index] }
+app_name = app.key.sub('/','')
+puts "App \"#{app_name}\" selected."
+
+class ElasticBeanstalk
+  def initialize(env)
+    @env = env
+  end
+
+  def beanstalked?
+    !environment_info.nil?
+  end
+
+  def environment_info
+    @environment_info ||= environment_description_message.environments[0]
+  end
+
+  private
+  def elasticbeanstalk
+    @elasticbeanstalk ||=
+      call_with_error_handling { Aws::ElasticBeanstalk::Client.new }
+  end
+
+  def environment_description_message
+    call_with_error_handling do
+      elasticbeanstalk.describe_environments(
+        environment_names: [@env]
+      )
+    end
+  end
+
+  def call_with_error_handling
+    yield
+  rescue Aws::ElasticBeanstalk::Errors::ServiceError => e
+    # rescues all errors returned by Amazon Elastic Beanstalk
+    fail "Error thrown by AWS EB: #{e}"
+  end
+end
+
+eb = ElasticBeanstalk.new(app_name)
+# TODO: Don't call out to bash, just call local classes to deploy
+if eb.beanstalked?
+  puts "On the bean."
+  puts "App is #{eb.environment_info.application_name}."
+  puts "You've asked to deploy version #{TAG}"
+  puts "Let's deploy to the Bean"
+  system("eb-deploy-tag #{TAG}")
+else
+  puts "Not bean, is it?"
+  puts "Let's deploy to S3 then!"
+  system("s3-deploy-tag #{TAG}")
+end
