@@ -29,7 +29,7 @@ begin
   gem 'aws-sdk', '~> 2'
   require 'aws-sdk' # For calling to AWS
 rescue LoadError
-  fail 'Run \'gem install aws-sdk\' first'
+  fail 'Run \'gem install aws-sdk\' first.'
 end
 
 class S3ConfigurationVerifier
