@@ -49,7 +49,7 @@ class ElasticBeanstalk
     @env = env
   end
 
-  def beanstalked?
+  def exists?
     !environment_info.nil?
   end
 
@@ -81,7 +81,7 @@ end
 
 eb = ElasticBeanstalk.new(app_name)
 # TODO: Don't call out to bash, just call local classes to deploy
-if eb.beanstalked?
+if eb.exists?
   puts "On the bean."
   puts "App is #{eb.environment_info.application_name}."
   puts "You've asked to deploy version #{TAG}"
