@@ -1,4 +1,4 @@
-class S3ConfigurationVerifier
+class S3Configuration
 
   REGION='ap-southeast-2'
   CONFIG_BUCKET='sealink-config'

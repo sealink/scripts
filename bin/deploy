@@ -29,8 +29,8 @@ puts CHANGELOG_QUESTION
 changelog_updated = STDIN.gets
 fail 'Better hop to it then ay?' unless changelog_updated.start_with?('y')
 
-require_relative '../deploy/s3_configuration_verifier'
-s3 = S3ConfigurationVerifier.new
+require_relative '../deploy/s3_configuration'
+s3 = S3Configuration.new
 s3.verify!
 apps = s3.apps
 app_names = apps.map(&:key)
