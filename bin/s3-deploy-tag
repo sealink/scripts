@@ -40,7 +40,7 @@ read_other_bucket_value() {
 
 check_bucket() {
   default_bucket_name="ticketing-app-next"
-  buckets="ticketing-app-next ticketing-app-edge ticketing-app daily-departures other"
+  buckets="ticketing-app-next ticketing-app-current ticketing-app-edge ticketing-app daily-departures other"
   echo "Choose bucket: [1-5]"
 
   select bucket in $buckets ; do
