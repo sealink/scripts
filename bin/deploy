@@ -44,16 +44,24 @@ app = apps.detect { |app| app.key == app_names[app_index] }
 app_name = app.key.sub('/','')
 puts "App \"#{app_name}\" selected."
 
+require_relative '../deploy/deployable/application'
+require_relative '../deploy/deployable/eb_platform'
+require_relative '../deploy/deployable/s3_platform'
+application = Application.new(name: app_name, version: TAG)
+
+require_relative '../deploy/eb_configuration'
 eb = EBConfiguration.new(app_name)
 # TODO: Don't call out to bash, just call local classes to deploy
 if eb.exists?
-  fail "Environment NOT READY!" unless eb.ready?
   puts "App is #{eb.environment_info.application_name} is on the Bean."
   puts "You've asked to deploy version #{TAG}"
-  puts "Let's deploy to the Bean"
-  system("eb-deploy-tag #{TAG}")
+  puts "Let's deploy to the Bean."
+  application.platform = EBPlatform.new
+  application.platform_config = eb
 else
   puts "Not bean, is it?"
   puts "Let's deploy to S3 then!"
-  system("s3-deploy-tag #{TAG}")
+  application.platform = S3Platform.new
 end
+application.deploy
+
