@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ################################################################
 # s3-deploy-tag
 # Deploys a new or existing tag to eb using "npm run publish"
