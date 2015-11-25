@@ -1,11 +1,6 @@
 class S3Configuration
 
-  REGION='ap-southeast-2'
   CONFIG_BUCKET='sealink-config'
-
-  def initialize
-    set_region!
-  end
 
   def verify!
     unless config_bucket.exists? && objects.count > 0
@@ -21,10 +16,6 @@ class S3Configuration
   end
 
   private
-  # Get into Sydney
-  def set_region!
-    Aws.config.update(region: REGION)
-  end
 
   def config_bucket
     @config_bucket ||=

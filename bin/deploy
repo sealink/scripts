@@ -29,6 +29,9 @@ puts CHANGELOG_QUESTION
 changelog_updated = STDIN.gets
 fail 'Better hop to it then ay?' unless changelog_updated.start_with?('y')
 
+require_relative '../deploy/aws_settings'
+AwsSettings.set_region!
+
 require_relative '../deploy/s3_configuration'
 s3 = S3Configuration.new
 puts "Checking S3... Please wait..."
