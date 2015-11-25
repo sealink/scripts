@@ -1,14 +1,12 @@
 class GemChecker
-  def self.require_gem(params = {})
-    gem_name = params[:gem_name]
-    version = params[:gem_version]
+  def self.require_gem(name, version=nil)
     if version
-      gem gem_name, "~> #{version}"
+      gem name, "~> #{version}"
     else
-      gem gem_name
+      gem name
     end
-    require gem_name
+    require name
   rescue LoadError
-    fail "Run \'gem install #{gem_name}\' first."
+    fail "Run \'gem install #{name}\' first."
   end
 end

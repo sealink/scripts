@@ -7,8 +7,8 @@
 ################################################################
 
 require_relative '../deploy/gem_checker'
-GemChecker.require_gem({gem_name: 'aws-sdk', gem_version: 2})
-GemChecker.require_gem({gem_name: 'rugged'})
+GemChecker.require_gem('aws-sdk', 2) # For AWS API
+GemChecker.require_gem('rugged') # For Git operations
 
 # Demand correct invocation, one argument only for tag, clean git, changelog
 
