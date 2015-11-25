@@ -10,4 +10,8 @@ class Application
   def deploy
     @platform.deploy(self)
   end
+
+  def to_s
+    "#{name} #{version}"
+  end
 end

@@ -6,12 +6,12 @@
 # Also checks various pre-deployment tasks
 ################################################################
 
+# Check that we have the required gems
 require_relative '../deploy/gem_checker'
 GemChecker.require_gem('aws-sdk', 2) # For AWS API
 GemChecker.require_gem('rugged') # For Git operations
 
 # Demand correct invocation, one argument only for tag, clean git, changelog
-
 if ARGV.size != 1
   puts "USAGE: #{File.basename($0)} [TAG]"
   puts "TAG: tag to deploy or create on current commit"
@@ -29,14 +29,17 @@ puts CHANGELOG_QUESTION
 changelog_updated = STDIN.gets
 fail 'Better hop to it then ay?' unless changelog_updated.start_with?('y')
 
+# Set up AWS params, i.e. region.
 require_relative '../deploy/aws_settings'
 AwsSettings.set_region!
 
+# Pull in and verify our deployment configurations
 require_relative '../deploy/deployable/configuration'
 configuration = Configuration.new
 puts "Checking available configurations... Please wait..."
 configuration.verify!
 puts "Check done."
+# Have the user decide what to deploy
 apps = configuration.apps
 app_names = apps.map(&:key)
 puts "Found application configurations. Select index of the one to deploy:"
@@ -68,5 +71,8 @@ else
   puts "Let's deploy to S3 then!"
   application.platform = S3Platform.new
 end
+puts "Commencing deployment of #{application}."
+puts "Confirm? (y/n)"
 application.deploy
+puts "All done."
 
