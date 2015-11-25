@@ -47,8 +47,7 @@ puts "App \"#{app_name}\" selected."
 eb = EBConfiguration.new(app_name)
 # TODO: Don't call out to bash, just call local classes to deploy
 if eb.exists?
-  puts "On the bean."
-  puts "App is #{eb.environment_info.application_name}."
+  puts "App is #{eb.environment_info.application_name} is on the Bean."
   puts "You've asked to deploy version #{TAG}"
   puts "Let's deploy to the Bean"
   system("eb-deploy-tag #{TAG}")
