@@ -15,10 +15,6 @@ class Configuration
     @apps ||= apps_list
   end
 
-  def versions
-    @versions ||= versions_list
-  end
-
   private
   def config_bucket
     @config_bucket ||=
@@ -67,20 +63,6 @@ class Configuration
         !o.key.empty?        &&
         o.key.end_with?('/') &&
         o.key.count('/') == 1
-      end
-    end
-  end
-
-  def versions_list
-    call_with_error_handling do
-      apps.each_with_object({}) do |app, accum|
-        accum[app] =
-        objects.select do |o|
-          !o.key.empty? &&
-          o.key.start_with?("#{app.key}config/") &&
-          o.key.end_with?('/') &&
-          o.key.count('/') == 3
-        end
       end
     end
   end
