@@ -42,7 +42,7 @@ puts "Check done."
 # Have the user decide what to deploy
 apps = configuration.apps
 app_names = apps.map(&:key)
-puts "Found application configurations. Select index of the one to deploy:"
+puts "Found applications. Select index of the one to deploy:"
 longest_key = app_names.max_by(&:length)
 app_names.each_with_index do |app, index|
   printf "%-#{longest_key.length}s %s\n", app.sub('/',''), index
@@ -51,6 +51,16 @@ app_index = Integer(STDIN.gets)
 app = apps.detect { |app| app.key == app_names[app_index] }
 app_name = app.key.sub('/','')
 puts "App \"#{app_name}\" selected."
+# Provide the configuration versions and let user choose
+version_folders = configuration.versions[app]
+versions = version_folders.map{|obj| obj.key.split('/').last }
+puts "Found configurations. Select index of the one to deploy:"
+versions.each_with_index do |version, index|
+  printf "%-#{longest_key.length}s %s\n", version, index
+end
+version_index = Integer(STDIN.gets)
+version = versions[version_index]
+puts "Version \"#{version}\" selected."
 
 require_relative '../deploy/deployable/application'
 require_relative '../deploy/deployable/eb_platform'
