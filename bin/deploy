@@ -65,10 +65,10 @@ puts "Version \"#{version}\" selected."
 require_relative '../deploy/deployable/application'
 require_relative '../deploy/deployable/eb_platform'
 require_relative '../deploy/deployable/s3_platform'
-application = Application.new(name: app_name, version: TAG)
+application = Application.new(app: app, tag: TAG)
 
 require_relative '../deploy/eb_configuration'
-eb = EBConfiguration.new(app_name)
+eb = EBConfiguration.new(app)
 # TODO: Don't call out to bash, just call local classes to deploy
 if eb.exists?
   puts "App is #{eb.environment_info.application_name} is on the Bean."

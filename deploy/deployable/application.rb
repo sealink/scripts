@@ -1,10 +1,10 @@
 class Application
-  attr_reader :name, :version
+  attr_reader :name, :tag
   attr_accessor :platform, :platform_config
 
   def initialize(opts = {})
     @name     = opts[:name]
-    @version  = opts[:version]
+    @tag  = opts[:tag]
   end
 
   def deploy
@@ -12,6 +12,6 @@ class Application
   end
 
   def to_s
-    "#{name} #{version}"
+    "#{@name} #{@tag}"
   end
 end

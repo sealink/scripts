@@ -1,6 +1,7 @@
 class EBConfiguration
-  def initialize(env)
-    @env = env
+  def initialize(deployable)
+    @deployable = deployable
+    @env = deployable.key
   end
 
   def exists?
