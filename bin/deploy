@@ -23,7 +23,7 @@ unless system('git diff --staged --quiet HEAD --')
   fail "You have staged changes! Please sort your life out mate, innit?"
 end
 
-CHANGELOG_QUESTION = "Now hold on there for just a second, partner."\
+CHANGELOG_QUESTION = "Now hold on there for just a second, partner. "\
   "Have you updated the changelog (y/n)?"
 puts CHANGELOG_QUESTION
 changelog_updated = STDIN.gets
