@@ -6,6 +6,10 @@
 # Also checks various pre-deployment tasks
 ################################################################
 
+require_relative '../deploy/gem_checker'
+GemChecker.require_gem({gem_name: 'aws-sdk', gem_version: 2})
+GemChecker.require_gem({gem_name: 'rugged'})
+
 # Demand correct invocation, one argument only for tag, clean git, changelog
 
 if ARGV.size != 1
@@ -24,13 +28,6 @@ CHANGELOG_QUESTION = "Now hold on there for just a second, partner."\
 puts CHANGELOG_QUESTION
 changelog_updated = STDIN.gets
 fail 'Better hop to it then ay?' unless changelog_updated.start_with?('y')
-
-begin
-  gem 'aws-sdk', '~> 2'
-  require 'aws-sdk' # For calling to AWS
-rescue LoadError
-  fail 'Run \'gem install aws-sdk\' first.'
-end
 
 class S3ConfigurationVerifier
 
