@@ -64,18 +64,22 @@ s3 = S3Configuration.new(app)
 
 # TODO: Don't call out to bash, just call local classes to deploy
 if eb.exists?
-  puts "App is #{eb.environment_info.application_name} is on the Bean."
-  puts "You've asked to deploy version #{TAG}"
-  puts "Let's deploy to the Bean."
   application.platform = EBPlatform.new
   application.platform_config = eb
-else
-  puts "Not bean, is it?"
-  puts "Let's deploy to S3 then!"
+  puts "Environment \'#{app_name}\' found on EB."
+  puts "You've asked to deploy version \'#{TAG}\'."
+elsif s3.exists?
   application.platform = S3Platform.new
+  application.platform_config = s3
+  puts "Website \'#{app_name}\' found on S3."
+  puts "You've asked to deploy version \'#{TAG}\'."
+else
+  fail "Application given as \'#{app_name}\'. "\
+       "EB environment \'#{app_name}\' was not found. "\
+       "S3 bucket \'#{app_name}\' was not found either. "\
+       "Please fix this before attempting to deploy."
 end
 puts "Commencing deployment of #{application}."
 puts "Confirm? (y/n)"
 application.deploy
 puts "All done."
-
