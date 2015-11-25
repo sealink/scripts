@@ -7,6 +7,10 @@ class EBConfiguration
     !environment_info.nil?
   end
 
+  def ready?
+    environment_info.status.eql? 'Ready'
+  end
+
   def environment_info
     @environment_info ||= environment_description_message.environments[0]
   end
