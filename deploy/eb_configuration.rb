@@ -1,7 +1,7 @@
 class EBConfiguration
   def initialize(deployable)
     @deployable = deployable
-    @env = deployable.key
+    @env = deployable.key.sub('/','')
   end
 
   def exists?
