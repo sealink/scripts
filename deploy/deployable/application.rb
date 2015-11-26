@@ -1,9 +1,11 @@
 class Application
-  attr_reader :name, :tag
+  attr_reader :name, :tag, :repo
   attr_accessor :platform, :platform_config
 
   def initialize(opts = {})
-    @name     = opts[:name]
+    @app = opts[:app]
+    @name = @app.key.sub('/', '')
+    @repo = opts[:repo]
     @tag  = opts[:tag]
   end
 
@@ -14,5 +16,9 @@ class Application
 
   def to_s
     "#{@name} #{@tag}"
+  end
+
+  def tag_exists?
+    @repo.tags.map(&:name).include? @tag
   end
 end

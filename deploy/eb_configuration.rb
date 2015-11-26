@@ -16,6 +16,10 @@ class EBConfiguration
     @environment_info ||= environment_description_message.environments[0]
   end
 
+  def application_name
+    environment_info.application_name
+  end
+
   private
   def elasticbeanstalk
     @elasticbeanstalk ||=

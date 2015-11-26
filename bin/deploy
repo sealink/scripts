@@ -61,7 +61,7 @@ puts "App \"#{app_name}\" selected."
 require_relative '../deploy/deployable/application'
 require_relative '../deploy/deployable/eb_platform'
 require_relative '../deploy/deployable/s3_platform'
-application = Application.new(app: app, tag: TAG)
+application = Application.new(app: app, repo: repo, tag: TAG)
 
 require_relative '../deploy/eb_configuration'
 eb = EBConfiguration.new(app)
