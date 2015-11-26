@@ -8,6 +8,7 @@ class Application
   end
 
   def deploy
+    fail 'Deployment platform not set' unless @platform
     @platform.deploy(self)
   end
 
