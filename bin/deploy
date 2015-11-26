@@ -19,7 +19,13 @@ if ARGV.size != 1
 end
 TAG = ARGV[0]
 
-unless system('git diff --staged --quiet HEAD --')
+repo = Rugged::Repository.discover('.')
+changeset = {}
+repo.status do |file,status|
+  changeset[status.join] ||= []
+  changeset[status.join]<<file
+end
+if changeset.keys.include? 'index_modified'
   fail "You have staged changes! Please sort your life out mate, innit?"
 end
 
