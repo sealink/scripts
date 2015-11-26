@@ -85,7 +85,10 @@ else
        "S3 bucket \'#{app_name}\' was not found either. "\
        "Please fix this before attempting to deploy."
 end
-puts "Commencing deployment of #{application}."
+puts "Will start deployment of #{application}."
 puts "Confirm? (y/n)"
+confirm_launch = STDIN.gets
+fail 'Bailing out.' unless confirm_launch.start_with?('y')
+puts 'Deployment commencing.'
 application.deploy
 puts "All done."
