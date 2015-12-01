@@ -35,6 +35,4 @@ class EBPlatform
       fail 'Deployment aborted, fix your repo' unless yoloswag.start_with?('y')
     end
   end
-
-  end
 end
