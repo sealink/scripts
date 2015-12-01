@@ -19,6 +19,7 @@ class EBPlatform
   end
 
   def check_version!
+    return application.sync! unless application.tag_exists?
     puts "Tag #{application.tag} already exists in Git."
     puts "Checking the Beanstalk..."
     if eb_label_exists?
