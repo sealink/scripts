@@ -4,6 +4,7 @@ class EBPlatform
     fail "Environment NOT READY!" unless eb.ready?
     @tag = @application.tag
     check_version!
+    eb_deploy!
   end
 
   private
@@ -33,6 +34,14 @@ class EBPlatform
       puts "THIS SHOULD NOT HAPPEN. DEPLOY ANYWAY? (Y/N)"
       yoloswag = STDIN.gets
       fail 'Deployment aborted, fix your repo' unless yoloswag.start_with?('y')
+    end
+  end
+
+  def eb_deploy!
+    if @use_existing
+      system("eb deploy --version=#{tag}")
+    else
+      system("eb deploy --label=#{tag}")
     end
   end
 end
