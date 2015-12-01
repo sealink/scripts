@@ -59,8 +59,6 @@ app_name = app.key.sub('/','')
 puts "App \"#{app_name}\" selected."
 
 require_relative '../deploy/deployable/application'
-require_relative '../deploy/deployable/eb_platform'
-require_relative '../deploy/deployable/s3_platform'
 application = Application.new(app: app, repo: repo, tag: TAG)
 
 require_relative '../deploy/eb_configuration'
@@ -68,6 +66,8 @@ eb = EBConfiguration.new(app)
 require_relative '../deploy/s3_configuration'
 s3 = S3Configuration.new(app)
 
+require_relative '../deploy/deployable/eb_platform'
+require_relative '../deploy/deployable/s3_platform'
 # TODO: Don't call out to bash, just call local classes to deploy
 if eb.exists?
   application.platform = EBPlatform.new
@@ -85,7 +85,7 @@ else
        "S3 bucket \'#{app_name}\' was not found either. "\
        "Please fix this before attempting to deploy."
 end
-puts "Will start deployment of #{application}."
+puts "Will start deployment of \'#{application}\'."
 puts "Confirm? (y/n)"
 confirm_launch = STDIN.gets
 fail 'Bailing out.' unless confirm_launch.start_with?('y')

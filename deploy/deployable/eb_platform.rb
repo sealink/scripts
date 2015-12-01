@@ -3,7 +3,7 @@ class EBPlatform
     @application = application
     fail "Environment NOT READY!" unless eb.ready?
     @tag = @application.tag
-    check_versioning!
+    check_version!
   end
 
   private
@@ -18,7 +18,7 @@ class EBPlatform
     ! eb.response.application_versions.empty?
   end
 
-  def check_versioning!
+  def check_version!
     puts "Tag #{application.tag} already exists in Git."
     puts "Checking the Beanstalk..."
     unless eb_label_exists?
