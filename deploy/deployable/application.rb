@@ -1,3 +1,5 @@
+require_relative 'repository'
+
 class Application
   attr_reader :name, :tag, :repo
   attr_accessor :platform, :platform_config
@@ -5,8 +7,9 @@ class Application
   def initialize(opts = {})
     @app = opts[:app]
     @name = @app.key.sub('/', '')
-    @repo = opts[:repo]
     @tag  = opts[:tag]
+    @repo = Deployable::Repository.new
+    @repo.tag = @tag
   end
 
   def deploy
@@ -19,6 +22,10 @@ class Application
   end
 
   def tag_exists?
-    @repo.tags.map(&:name).include? @tag
+    @repo.tag_exists?(@tag)
+  end
+
+  def sync!
+    @repo.sync!
   end
 end
