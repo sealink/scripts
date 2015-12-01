@@ -56,7 +56,9 @@ class Repository
   end
 
   def push!
-    repo.push 'origin', [head.name]
+    # Have to invoke git binary here, as gem won't push.
+    system('git push origin HEAD')
+    system('git push origin --tags')
   end
 
   # Helper Git methods
