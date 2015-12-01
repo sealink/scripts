@@ -2,14 +2,16 @@ require_relative 'repository'
 
 class Application
   attr_reader :name, :tag, :repo
-  attr_accessor :platform, :platform_config
+  attr_accessor :platform, :platform_config, :bucket
 
   def initialize(opts = {})
-    @app = opts[:app]
-    @name = @app.key.sub('/', '')
     @tag  = opts[:tag]
     @repo = Deployable::Repository.new
     @repo.tag = @tag
+  end
+
+  def name
+    @bucket ? @bucket.key.sub('/', '') : ''
   end
 
   def deploy

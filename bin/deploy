@@ -19,13 +19,10 @@ if ARGV.size != 1
 end
 TAG = ARGV[0]
 
-repo = Rugged::Repository.discover('.')
-changeset = {}
-repo.status do |file,status|
-  changeset[status.join] ||= []
-  changeset[status.join]<<file
-end
-if changeset.keys.include? 'index_modified'
+require_relative '../deploy/deployable/application'
+application = Application.new(tag: TAG)
+repo = application.repo
+if repo.index_modified?
   fail "You have staged changes! Please sort your life out mate, innit?"
 end
 
@@ -54,12 +51,9 @@ app_names.each_with_index do |app, index|
   printf "%-#{longest_key.length}s %s\n", app.sub('/',''), index
 end
 app_index = Integer(STDIN.gets)
-app = apps.detect { |app| app.key == app_names[app_index] }
-app_name = app.key.sub('/','')
-puts "App \"#{app_name}\" selected."
-
-require_relative '../deploy/deployable/application'
-application = Application.new(app: app, repo: repo, tag: TAG)
+app_bucket = apps.detect { |app| app.key == app_names[app_index] }
+application.bucket = app_bucket
+puts "App \"#{application.name}\" selected."
 
 require_relative '../deploy/eb_configuration'
 eb = EBConfiguration.new(app)
@@ -72,17 +66,17 @@ require_relative '../deploy/deployable/s3_platform'
 if eb.exists?
   application.platform = EBPlatform.new
   application.platform_config = eb
-  puts "Environment \'#{app_name}\' found on EB."
+  puts "Environment \'#{application.name}\' found on EB."
   puts "You've asked to deploy version \'#{TAG}\'."
 elsif s3.exists?
   application.platform = S3Platform.new
   application.platform_config = s3
-  puts "Website \'#{app_name}\' found on S3."
+  puts "Website \'#{application.name}\' found on S3."
   puts "You've asked to deploy version \'#{TAG}\'."
 else
-  fail "Application given as \'#{app_name}\'. "\
-       "EB environment \'#{app_name}\' was not found. "\
-       "S3 bucket \'#{app_name}\' was not found either. "\
+  fail "Application given as \'#{application.name}\'. "\
+       "EB environment \'#{application.name}\' was not found. "\
+       "S3 bucket \'#{application.name}\' was not found either. "\
        "Please fix this before attempting to deploy."
 end
 puts "Will start deployment of \'#{application}\'."
