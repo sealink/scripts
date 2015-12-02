@@ -32,12 +32,12 @@ fail 'Better hop to it then ay?' unless changelog_updated.start_with?('y')
 require_relative '../deploy/aws_settings'
 AwsSettings.set_region!
 
-require_relative '../deploy/s3_configuration'
-s3 = S3Configuration.new
-puts "Checking S3... Please wait..."
-s3.verify!
-puts "S3 Check done."
-apps = s3.apps
+require_relative '../deploy/deployable/configuration'
+configuration = Configuration.new
+puts "Checking available configurations... Please wait..."
+configuration.verify!
+puts "Check done."
+apps = configuration.apps
 app_names = apps.map(&:key)
 puts "Found application configurations. Select index of the one to deploy:"
 longest_key = app_names.max_by(&:length)

@@ -1,4 +1,4 @@
-class S3Configuration
+class Configuration
 
   CONFIG_BUCKET='sealink-config'
 
@@ -16,7 +16,6 @@ class S3Configuration
   end
 
   private
-
   def config_bucket
     @config_bucket ||=
       call_with_error_handling { Aws::S3::Bucket.new(CONFIG_BUCKET) }
