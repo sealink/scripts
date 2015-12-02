@@ -1,7 +1,7 @@
 class EBConfiguration
-  def initialize(deployable)
-    @deployable = deployable
-    @env = deployable.key.sub('/','')
+  def initialize(app_configs)
+    @app_configs = app_configs
+    @env = app_configs.key.sub('/','')
   end
 
   def exists?
