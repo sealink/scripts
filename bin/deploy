@@ -62,7 +62,7 @@ s3 = S3::Configuration.new(app_bucket)
 
 require_relative '../deploy/eb/platform'
 require_relative '../deploy/s3/platform'
-# TODO: Don't call out to bash, just call local classes to deploy
+
 if eb.exists?
   application.platform = Eb::Platform.new
   application.platform_config = eb
