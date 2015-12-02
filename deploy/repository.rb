@@ -5,8 +5,8 @@ class Repository
     @repo ||= Rugged::Repository.discover('.')
   end
 
-  def tag_exists?
-    repo.tags.map(&:name).include? @tag
+  def tag_exists?(tag)
+    repo.tags.map(&:name).include? tag
   end
 
   def sync!

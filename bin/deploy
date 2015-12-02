@@ -19,9 +19,8 @@ if ARGV.size != 1
 end
 TAG = ARGV[0]
 
-require_relative '../deploy/application'
-application = Application.new(tag: TAG)
-repo = application.repo
+require_relative '../deploy/repository'
+repo = Repository.new
 if repo.index_modified?
   fail "You have staged changes! Please sort your life out mate, innit?"
 end
@@ -52,7 +51,9 @@ app_names.each_with_index do |app, index|
 end
 app_index = Integer(STDIN.gets)
 app_bucket = apps.detect { |app| app.key == app_names[app_index] }
-application.bucket = app_bucket
+
+require_relative '../deploy/application'
+application = Application.new(bucket: app_bucket, tag: TAG)
 puts "App \"#{application.name}\" selected."
 
 require_relative '../deploy/eb/configuration'

@@ -2,12 +2,11 @@ require_relative 'repository'
 
 class Application
   attr_reader :name, :tag, :repo
-  attr_accessor :platform, :platform_config, :bucket
+  attr_accessor :platform, :platform_config
 
   def initialize(opts = {})
+    @bucket = opts[:app_bucket]
     @tag  = opts[:tag]
-    @repo = Repository.new
-    @repo.tag = @tag
   end
 
   def name
@@ -24,10 +23,14 @@ class Application
   end
 
   def tag_exists?
-    @repo.tag_exists?(@tag)
+    repo.tag_exists?(@tag)
   end
 
   def sync!
-    @repo.sync!
+    repo.sync!
+  end
+
+  def repo
+    @repo ||= Repository.new
   end
 end
