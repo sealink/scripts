@@ -6,7 +6,7 @@ class Application
 
   def initialize(opts = {})
     @tag  = opts[:tag]
-    @repo = Deployable::Repository.new
+    @repo = Repository.new
     @repo.tag = @tag
   end
 
@@ -20,7 +20,7 @@ class Application
   end
 
   def to_s
-    "#{@name} #{@tag}"
+    "#{name} #{@tag}"
   end
 
   def tag_exists?
