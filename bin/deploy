@@ -84,5 +84,8 @@ puts "Confirm? (y/n)"
 confirm_launch = STDIN.gets
 fail 'Bailing out.' unless confirm_launch.start_with?('y')
 puts 'Deployment commencing.'
-application.deploy
-puts "All done."
+if application.deploy
+  puts "All done."
+else
+  puts "Deployment failed."
+end
