@@ -1,5 +1,4 @@
 class S3Configuration
-  attr_reader :version
   def initialize(app_configs)
     @app_configs = app_configs
     @name = app_configs.key
@@ -9,8 +8,8 @@ class S3Configuration
     target_bucket.exists?
   end
 
-  def versions
-    @versions ||= versions_list
+  def version
+    @version ||= version_select
   end
 
   private
@@ -20,7 +19,7 @@ class S3Configuration
     end
   end
 
-  def versions_list
+  def version_select
     call_with_error_handling do
       @app_configs.bucket.objects.select do |o|
         !o.key.empty? &&
