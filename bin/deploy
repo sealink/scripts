@@ -19,7 +19,7 @@ if ARGV.size != 1
 end
 TAG = ARGV[0]
 
-require_relative '../deploy/deployable/application'
+require_relative '../deploy/application'
 application = Application.new(tag: TAG)
 repo = application.repo
 if repo.index_modified?
@@ -37,7 +37,7 @@ require_relative '../deploy/aws_settings'
 AwsSettings.set_region!
 
 # Pull in and verify our deployment configurations
-require_relative '../deploy/deployable/configuration'
+require_relative '../deploy/configuration'
 configuration = Configuration.new
 puts "Checking available configurations... Please wait..."
 configuration.verify!
