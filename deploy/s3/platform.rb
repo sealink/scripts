@@ -1,6 +1,6 @@
 module S3
   class Platform
-    def deploy(application)
+    def deploy!(application)
       @application = application
       @tag = @application.tag
       s3_deploy!

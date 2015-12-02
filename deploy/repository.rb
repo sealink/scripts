@@ -26,7 +26,7 @@ class Repository
   end
 
   private
-  def commit
+  def commit!
     puts "Writing version.txt..."
     require 'fileutils'
     FileUtils.mkdir_p 'public'
@@ -53,11 +53,11 @@ class Repository
     @tag_collection ||= Rugged::TagCollection.new(repo)
   end
 
-  def tag
+  def tag!
     tag_collection.create(@tag, head.target.oid)
   end
 
-  def push
+  def push!
     # Have to invoke git binary here, as gem won't push.
     unless system('git push origin HEAD') && system('git push origin --tags')
       fail "Failed to git push."

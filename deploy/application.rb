@@ -14,9 +14,9 @@ class Application
     @bucket ? @bucket.key.sub('/', '') : ''
   end
 
-  def deploy
+  def deploy!
     fail 'Deployment platform not set' unless @platform
-    @platform.deploy(self)
+    @platform.deploy!(self)
   end
 
   def to_s

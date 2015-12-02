@@ -1,10 +1,10 @@
 module Eb
   class Platform
-    def deploy(application)
+    def deploy!(application)
       @application = application
       fail "Environment NOT READY!" unless eb.ready?
       @tag = @application.tag
-      check_version!
+      check_version
       eb_deploy!
     end
 
@@ -20,7 +20,7 @@ module Eb
       ! eb.response.application_versions.empty?
     end
 
-    def check_version!
+    def check_version
       return application.sync! unless application.tag_exists?
       puts "Tag #{application.tag} already exists in Git."
       puts "Checking the Beanstalk..."
