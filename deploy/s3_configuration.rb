@@ -1,8 +1,8 @@
 class S3Configuration
   attr_reader :version
-  def initialize(deployable)
-    @deployable = deployable
-    @name = deployable.key
+  def initialize(app_configs)
+    @app_configs = app_configs
+    @name = app_configs.key
   end
 
   def exists?
@@ -22,7 +22,7 @@ class S3Configuration
 
   def versions_list
     call_with_error_handling do
-      @deployable.bucket.objects.select do |o|
+      @app_configs.bucket.objects.select do |o|
         !o.key.empty? &&
         o.key.start_with?("#{@name}config/") &&
         o.key.end_with?('/') &&
