@@ -72,6 +72,7 @@ elsif s3.exists?
   application.platform = S3Platform.new
   application.platform_config = s3
   puts "Website \'#{application.name}\' found on S3."
+  puts "Config version \"#{s3.version}\" selected."
   puts "You've asked to deploy version \'#{TAG}\'."
 else
   fail "Application given as \'#{application.name}\'. "\
