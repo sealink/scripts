@@ -1,0 +1,89 @@
+#!/usr/bin/env ruby
+################################################################
+# Deploys a new or existing tag to EB using "eb deploy"
+# Deploys to S3 if EB deployment is not applicable
+# Also writes and commits version to text file
+# Also checks various pre-deployment tasks
+################################################################
+
+# Check that we have the required gems
+require_relative '../deploy/gem_checker'
+GemChecker.require_gem('aws-sdk', 2) # For AWS API
+GemChecker.require_gem('rugged') # For Git operations
+
+# Demand correct invocation, one argument only for tag, clean git, changelog
+if ARGV.size != 1
+  puts "USAGE: #{File.basename($0)} [TAG]"
+  puts "TAG: tag to deploy or create on current commit"
+  fail ArgumentError, "Incorrect number of arguments given."
+end
+TAG = ARGV[0]
+
+require_relative '../deploy/repository'
+repo = Repository.new
+if repo.index_modified?
+  fail "You have staged changes! Please sort your life out mate, innit?"
+end
+
+CHANGELOG_QUESTION = "Now hold on there for just a second, partner. "\
+  "Have you updated the changelog (y/n)?"
+puts CHANGELOG_QUESTION
+changelog_updated = STDIN.gets
+fail 'Better hop to it then ay?' unless changelog_updated.start_with?('y')
+
+# Set up AWS params, i.e. region.
+require_relative '../deploy/aws_settings'
+AwsSettings.set_region!
+
+# Pull in and verify our deployment configurations
+require_relative '../deploy/configuration'
+configuration = Configuration.new
+puts "Checking available configurations... Please wait..."
+configuration.verify!
+puts "Check done."
+# Have the user decide what to deploy
+apps = configuration.apps
+app_names = apps.map(&:key)
+puts "Found applications. Select index of the one to deploy:"
+longest_key = app_names.max_by(&:length)
+app_names.each_with_index do |app, index|
+  printf "%-#{longest_key.length}s %s\n", app.sub('/',''), index
+end
+app_index = Integer(STDIN.gets)
+app_bucket = apps.detect { |app| app.key == app_names[app_index] }
+name = app_bucket.key.sub('/','')
+puts "App configuration \"#{name}\" selected."
+
+require_relative '../deploy/eb/configuration'
+eb = Eb::Configuration.new(app_bucket)
+require_relative '../deploy/s3/configuration'
+s3 = S3::Configuration.new(app_bucket)
+
+if eb.exists?
+  require_relative '../deploy/eb/platform'
+  platform = Eb::Platform.new(eb: eb, tag: TAG)
+  puts "Environment \'#{name}\' found on EB."
+  puts "You've asked to deploy release version \'#{TAG}\'."
+elsif s3.exists?
+  require_relative '../deploy/s3/platform'
+  platform = S3::Platform.new(s3: s3, tag: TAG)
+  puts "Website \'#{name}\' found on S3."
+  puts "Config bucket version \"#{s3.version}\" selected."
+  puts "You've asked to deploy release version \'#{TAG}\'."
+end
+unless platform
+  fail "Application given as \'#{name}\'. "\
+       "EB environment \'#{name}\' was not found. "\
+       "S3 bucket \'#{name}\' was not found either. "\
+       "Please fix this before attempting to deploy."
+end
+
+puts "Will start deployment of release version \'#{TAG}\' to \'#{name}\'."
+puts "Confirm? (y/n)"
+confirm_launch = STDIN.gets
+fail 'Bailing out.' unless confirm_launch.start_with?('y')
+puts 'Preparing the tagged release version for deployment.'
+repo.prepare!(TAG)
+puts 'Deployment commencing.'
+platform.deploy!
+puts "All done."
