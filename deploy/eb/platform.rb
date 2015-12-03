@@ -27,9 +27,9 @@ module Eb
     def eb_deploy!
       if eb_label_exists?
         write_redeploy_notification
-        system("eb deploy --version=#{tag}")
+        system("eb deploy --version=#{@tag}")
       else
-        system("eb deploy --label=#{tag}")
+        system("eb deploy --label=#{@tag}")
       end
     end
   end
