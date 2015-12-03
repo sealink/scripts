@@ -21,6 +21,12 @@ module Eb
       environment_info.application_name
     end
 
+    def version_exists?(version)
+      request = {application_name: application_name, version_labels: [version]}
+      response = elasticbeanstalk.describe_application_versions(request)
+      ! response.application_versions.empty?
+    end
+
     private
     def elasticbeanstalk
       @elasticbeanstalk ||=

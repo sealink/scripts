@@ -11,13 +11,6 @@ module Eb
     end
 
     private
-    def eb_label_exists?
-      eb_options =
-        {application_name: @eb.application_name, version_labels: [@tag]}
-      eb_response = @eb.describe_application_versions(eb_options)
-      ! @eb.response.application_versions.empty?
-    end
-
     def write_redeploy_notification
       puts "Elastic Beanstalk application #{@eb.application_name}"\
            " already has version #{@tag}"
@@ -25,7 +18,7 @@ module Eb
     end
 
     def eb_deploy!
-      if eb_label_exists?
+      if @eb.version_exists?(@tag)
         write_redeploy_notification
         system("eb deploy --version=#{@tag}")
       else
