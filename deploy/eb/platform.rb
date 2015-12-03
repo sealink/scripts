@@ -1,9 +1,12 @@
 module Eb
   class Platform
-    def deploy!(opts)
+    def initialize(opts)
       @eb = opts[:eb]
-      fail "Environment NOT READY!" unless @eb.ready?
       @tag = opts[:tag]
+    end
+
+    def deploy!
+      fail "Environment NOT READY!" unless @eb.ready?
       check_version
       eb_deploy!
     end

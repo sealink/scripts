@@ -1,8 +1,11 @@
 module S3
   class Platform
-    def deploy!(opts)
+    def initialize(opts)
       @s3 = opts[:s3]
       @tag = opts[:tag]
+    end
+
+    def deploy!
       s3_deploy!
     end
 
