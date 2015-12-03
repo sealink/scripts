@@ -13,7 +13,7 @@ module S3
     private
     def s3_deploy!
       system(
-        "bucket=#{@s3.target_bucket}"\
+        "bucket=#{@s3.target}"\
         " s3_config_version=#{@s3.version}"\
         " npm run publish"
       )

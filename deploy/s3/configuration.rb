@@ -13,6 +13,10 @@ module S3
       @version ||= version_select
     end
 
+    def target
+      target_bucket.key.sub('/','')
+    end
+
     private
     def target_bucket
       call_with_error_handling do
