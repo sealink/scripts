@@ -1,6 +1,4 @@
 class Repository
-  attr_accessor :tag
-
   def repo
     @repo ||= Rugged::Repository.discover('.')
   end

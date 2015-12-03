@@ -51,10 +51,8 @@ app_names.each_with_index do |app, index|
 end
 app_index = Integer(STDIN.gets)
 app_bucket = apps.detect { |app| app.key == app_names[app_index] }
-
-require_relative '../deploy/application'
-application = Application.new(bucket: app_bucket, tag: TAG)
-puts "App \"#{application.name}\" selected."
+name = app_bucket.key.sub('/','')
+puts "App configuration \"#{name}\" selected."
 
 require_relative '../deploy/eb/configuration'
 eb = Eb::Configuration.new(app_bucket)
@@ -65,28 +63,32 @@ require_relative '../deploy/eb/platform'
 require_relative '../deploy/s3/platform'
 
 if eb.exists?
-  application.platform = Eb::Platform.new
-  application.platform_config = eb
-  puts "Environment \'#{application.name}\' found on EB."
+  platform_config = eb
+  platform = Eb::Platform.new(eb: platform_config, tag: TAG)
+  puts "Environment \'#{name}\' found on EB."
   puts "You've asked to deploy version \'#{TAG}\'."
 elsif s3.exists?
-  application.platform = S3::Platform.new
-  application.platform_config = s3
-  puts "Website \'#{application.name}\' found on S3."
+  platform_config = s3
+  platform = S3::Platform.new(s3: platform_config, tag: TAG)
+  puts "Website \'#{name}\' found on S3."
   puts "Config version \"#{s3.version}\" selected."
   puts "You've asked to deploy version \'#{TAG}\'."
-else
-  fail "Application given as \'#{application.name}\'. "\
-       "EB environment \'#{application.name}\' was not found. "\
-       "S3 bucket \'#{application.name}\' was not found either. "\
+end
+unless platform && platform_config
+  fail "Application given as \'#{name}\'. "\
+       "EB environment \'#{name}\' was not found. "\
+       "S3 bucket \'#{name}\' was not found either. "\
        "Please fix this before attempting to deploy."
 end
-puts "Will start deployment of \'#{application}\'."
+
+puts "Will start deployment of \'#{name} #{TAG} on #{platform}\'."
 puts "Confirm? (y/n)"
 confirm_launch = STDIN.gets
 fail 'Bailing out.' unless confirm_launch.start_with?('y')
+puts 'Preparing the tagged version for deployment.'
+repo.sync! unless repo.tag_exists(TAG)
 puts 'Deployment commencing.'
-if application.deploy!
+if platform.deploy!
   puts "All done."
 else
   puts "Deployment failed."
