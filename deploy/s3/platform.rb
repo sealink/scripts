@@ -6,6 +6,7 @@ module S3
     end
 
     def deploy!
+      # TODO: Add option to re-use existing deployment if we can
       s3_deploy!
     end
 
