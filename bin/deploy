@@ -71,7 +71,7 @@ elsif s3.exists?
   puts "Config version \"#{s3.version}\" selected."
   puts "You've asked to deploy version \'#{TAG}\'."
 end
-unless platform && platform_config
+unless platform
   fail "Application given as \'#{name}\'. "\
        "EB environment \'#{name}\' was not found. "\
        "S3 bucket \'#{name}\' was not found either. "\
