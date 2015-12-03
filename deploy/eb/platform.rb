@@ -28,13 +28,13 @@ module Eb
         puts "Elastic Beanstalk application #{eb.application_name}"\
              " already has version #{@tag}"
         puts "Assuming you do mean to redeploy, perhaps to a new target."
-        @use_existing ||= true
+        @use_existing = true
       else
         puts "Elastic Beanstalk doesn't have this version but tag exists."\
              "This usually indicates a recently failed deployment."
         puts "THIS SHOULD NOT HAPPEN. DEPLOY ANYWAY? (Y/N)"
         yoloswag = STDIN.gets
-        fail 'Deployment aborted, fix your repo' unless yoloswag.start_with?('y')
+        fail 'Deployment killed, fix your repo' unless yoloswag.start_with?('y')
       end
     end
 
