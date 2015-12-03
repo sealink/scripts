@@ -3,17 +3,6 @@ class Repository
     @repo ||= Rugged::Repository.discover('.')
   end
 
-  def tag_exists?(tag)
-    repo.tags.map(&:name).include? tag
-  end
-
-  def sync!
-    return if tag_exists?
-    commit
-    tag
-    push
-  end
-
   def index_modified?
     changeset = {}
     repo.status do |file,status|
@@ -23,7 +12,21 @@ class Repository
     changeset.keys.include? 'index_modified'
   end
 
+  def prepare!(tag)
+    sync! unless tag_exists(tag)
+  end
+
   private
+  def tag_exists?(tag)
+    repo.tags.map(&:name).include? tag
+  end
+
+  def sync!
+    commit
+    tag
+    push
+  end
+
   def commit!
     puts "Writing version.txt..."
     require 'fileutils'

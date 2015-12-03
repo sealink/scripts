@@ -83,7 +83,7 @@ puts "Confirm? (y/n)"
 confirm_launch = STDIN.gets
 fail 'Bailing out.' unless confirm_launch.start_with?('y')
 puts 'Preparing the tagged release version for deployment.'
-repo.sync! unless repo.tag_exists?(TAG)
+repo.prepare!(TAG)
 puts 'Deployment commencing.'
 platform.deploy!
 puts "All done."
