@@ -63,13 +63,13 @@ if eb.exists?
   require_relative '../deploy/eb/platform'
   platform = Eb::Platform.new(eb: eb, tag: TAG)
   puts "Environment \'#{name}\' found on EB."
-  puts "You've asked to deploy version \'#{TAG}\'."
+  puts "You've asked to deploy release version \'#{TAG}\'."
 elsif s3.exists?
   require_relative '../deploy/s3/platform'
   platform = S3::Platform.new(s3: s3, tag: TAG)
   puts "Website \'#{name}\' found on S3."
-  puts "Config version \"#{s3.version}\" selected."
-  puts "You've asked to deploy version \'#{TAG}\'."
+  puts "Config bucket version \"#{s3.version}\" selected."
+  puts "You've asked to deploy release version \'#{TAG}\'."
 end
 unless platform
   fail "Application given as \'#{name}\'. "\
@@ -78,11 +78,11 @@ unless platform
        "Please fix this before attempting to deploy."
 end
 
-puts "Will start deployment of \'#{name} #{TAG}\'."
+puts "Will start deployment of release version #{TAG} to \'#{name}\'."
 puts "Confirm? (y/n)"
 confirm_launch = STDIN.gets
 fail 'Bailing out.' unless confirm_launch.start_with?('y')
-puts 'Preparing the tagged version for deployment.'
+puts 'Preparing the tagged release version for deployment.'
 repo.sync! unless repo.tag_exists(TAG)
 puts 'Deployment commencing.'
 if platform.deploy!
