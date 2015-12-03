@@ -85,8 +85,5 @@ fail 'Bailing out.' unless confirm_launch.start_with?('y')
 puts 'Preparing the tagged release version for deployment.'
 repo.sync! unless repo.tag_exists?(TAG)
 puts 'Deployment commencing.'
-if platform.deploy!
-  puts "All done."
-else
-  puts "Deployment failed."
-end
+platform.deploy!
+puts "All done."
