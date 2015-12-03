@@ -1,0 +1,55 @@
+#!/bin/bash
+################################################################
+# craft_update
+# Searches and cleans latest craftcms url from craftcms.com
+# Downloads and replaces existing craft app folder
+# Also checks you agree to craftcms terms
+################################################################
+set -e
+
+# Check that path to craft folder is there
+if [ "$#" -ne 1 ]
+then
+  echo "USAGE: craft_update [path/to/craft_folder]"
+  echo "Please use by passing the path to the craft folder without trailing slash"
+  exit 1
+fi
+
+# Check terms
+read -p  "Do you agree to craft's terms? - https://craftcms.com/license (y/n)" agreeTerms
+if [ "$agreeTerms" != "y" ]
+then
+  echo "Sorry, please agree to the terms before downloading."
+  exit 1
+fi
+
+# Decode a JS encoded string
+decode() {
+  local result
+  result=$(node -p "decodeURIComponent('${1//\'/\\\'}')")
+  echo "$result"
+}
+
+# Grep craft site for latest download url
+rawURL=$(curl https://craftcms.com | grep 'window.craftDownloadUrl')
+
+# Extract the JS encoded URL
+encodedURL=$(echo $rawURL | sed -n 's@\(window\.craftDownloadUrl \= \"\)\(.*\)\(\"\;\)@ \2 @p')
+
+# And decode it
+decodedURL=$(decode $encodedURL)
+
+# Download the latest Craft, save as craft.zip in current folder
+wget $decodedURL -O "$1/craft.zip"
+
+# Extract just the craft directory out of the archive, quietly
+unzip -d $1 -qq "$1/craft.zip" 'craft/app/*'
+
+# Swap in new app folder
+mv "$1/app" "$1/app_old"
+mv "$1/craft/app" "$1/app"
+
+# Cleanup
+rmdir "$1/craft"
+rm -rf "$1/app_old"
+rm "$1/craft.zip"
