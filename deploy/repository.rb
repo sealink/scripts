@@ -13,7 +13,7 @@ class Repository
   end
 
   def prepare!(tag)
-    sync! unless tag_exists(tag)
+    sync! unless tag_exists?(tag)
   end
 
   private
@@ -22,9 +22,9 @@ class Repository
   end
 
   def sync!
-    commit
-    tag
-    push
+    commit!
+    tag!
+    push!
   end
 
   def commit!
