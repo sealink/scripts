@@ -13,12 +13,14 @@ class Repository
   end
 
   def prepare!(tag)
-    sync! unless tag_exists?(tag)
+    fail "No tag given" unless tag
+    @tag = tag
+    sync! unless tag_exists?
   end
 
   private
-  def tag_exists?(tag)
-    repo.tags.map(&:name).include? tag
+  def tag_exists?
+    repo.tags.map(&:name).include? @tag
   end
 
   def sync!
