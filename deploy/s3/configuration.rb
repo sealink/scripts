@@ -2,7 +2,7 @@ module S3
   class Configuration
     def initialize(app_configs)
       @app_configs = app_configs
-      @name = app_configs.key
+      @name = app_configs.key.sub('/','')
     end
 
     def exists?
@@ -14,7 +14,7 @@ module S3
     end
 
     def target
-      target_bucket.key.sub('/','')
+      target_bucket.name
     end
 
     private
@@ -43,7 +43,7 @@ module S3
       call_with_error_handling do
         @app_configs.bucket.objects.select do |o|
           !o.key.empty? &&
-          o.key.start_with?("#{@name}config/") &&
+          o.key.start_with?("#{@name}/config/") &&
           o.key.end_with?('/') &&
           o.key.count('/') == 3
         end
