@@ -78,7 +78,7 @@ unless platform
        "Please fix this before attempting to deploy."
 end
 
-puts "Will start deployment of release version #{TAG} to \'#{name}\'."
+puts "Will start deployment of release version \'#{TAG}\' to \'#{name}\'."
 puts "Confirm? (y/n)"
 confirm_launch = STDIN.gets
 fail 'Bailing out.' unless confirm_launch.start_with?('y')
