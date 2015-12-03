@@ -63,13 +63,11 @@ require_relative '../deploy/eb/platform'
 require_relative '../deploy/s3/platform'
 
 if eb.exists?
-  platform_config = eb
-  platform = Eb::Platform.new(eb: platform_config, tag: TAG)
+  platform = Eb::Platform.new(eb: eb, tag: TAG)
   puts "Environment \'#{name}\' found on EB."
   puts "You've asked to deploy version \'#{TAG}\'."
 elsif s3.exists?
-  platform_config = s3
-  platform = S3::Platform.new(s3: platform_config, tag: TAG)
+  platform = S3::Platform.new(s3: s3, tag: TAG)
   puts "Website \'#{name}\' found on S3."
   puts "Config version \"#{s3.version}\" selected."
   puts "You've asked to deploy version \'#{TAG}\'."
