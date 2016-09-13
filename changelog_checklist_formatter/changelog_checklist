@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+require_relative 'lib/changelog_checklist'
+
+def ask_version
+  print 'Which ChangeLog do you want to format for JIRA checklist? '
+  gets.chomp
+end
+
+changelog_version = ENV.fetch('VERSION') { ask_version }
+changelog_text = ENV.fetch('CHANGELOG_PATH', File.read('CHANGELOG.md'))
+puts ChangelogChecklist.new(changelog_version, changelog_text).to_table
