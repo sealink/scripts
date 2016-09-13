@@ -8,4 +8,5 @@ def ask_version
 end
 
 changelog_version = ENV.fetch('VERSION') { ask_version }
-puts ChangelogChecklist.new(changelog_version).to_table
+changelog_text = ENV.fetch('CHANGELOG_PATH', File.read('CHANGELOG.md'))
+puts ChangelogChecklist.new(changelog_version, changelog_text).to_table

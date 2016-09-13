@@ -1,6 +1,7 @@
 class ChangelogChecklist
-  def initialize(version_series)
+  def initialize(version_series, changelog)
     @version_series = version_series
+    @changelog = changelog
   end
 
   def to_table
@@ -22,7 +23,7 @@ class ChangelogChecklist
 
   def version_segments
     segments =
-      read_changelog
+      @changelog
       .split(/## QuickTravel /) # Array of Every version
       .select { |string| string.start_with? @version_series } # Find correct version at start of line
 
@@ -32,10 +33,6 @@ class ChangelogChecklist
     end
 
     segments
-  end
-
-  def read_changelog
-    File.read(ENV.fetch('CHANGELOG_PATH', 'CHANGELOG.md'))
   end
 
   def version_numbers(version_segments)

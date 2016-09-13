@@ -3,7 +3,8 @@ require_relative '../lib/changelog_checklist'
 
 describe 'changelog formatter' do
   let(:version_series) { '' }
-  let(:formatter) { ChangelogChecklist.new(version_series) }
+  let(:changelog_text) { File.read('spec/CHANGELOG.md') }
+  let(:formatter) { ChangelogChecklist.new(version_series, changelog_text) }
 
   context 'when the version series is 4.63.0' do
     let(:version_series) { '4.63.0' }
@@ -32,10 +33,7 @@ describe 'changelog formatter' do
   context 'when the version series is 4.51' do
     let(:version_series) { '4.51' }
     let(:output3) {
-      "|4.51.3| |\n"\
-      "|*Internal*| |\n"\
-      "|Updates config version to 2.1\n"\
-      "4.51.2| |\n"\
+      "|4.51.2| |\n"\
       "|*Internal*| |\n"\
       "|Updates base docker image to address dojo loading issue\n"\
       "4.51.1| |\n"\
@@ -46,12 +44,7 @@ describe 'changelog formatter' do
       "|Implements Vouchers API| |\n"\
       "|*Internal*| |\n"\
       "|Fixes issue with CreditLink redeem API| |\n"\
-      "|Adds support for CreditLink voucher deactivate API| |\n"\
-      "|*Front Office*| |\n"\
-      "|Bookings: When adding multiple vehicles and trailers, trailers will now be assigned correctly| |\n"\
-      "|*Admin*| |\n"\
-      "|No longer require services at the product type level (Migration)| |\n"\
-      "|Clarify cargo when creating/editing vehicle types| |\n"
+      "|Adds support for CreditLink voucher deactivate API| |\n"
     }
     it 'the ChangeLog table will be formatted as output3' do
       expect(formatter.to_table).to eq output3
